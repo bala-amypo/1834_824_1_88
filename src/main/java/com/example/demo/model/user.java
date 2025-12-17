@@ -4,9 +4,22 @@
  import jakarta.persistence.Table;
  import jakarta.persistence.Id;
  import jakarta.persistence.GenerationValue;
- import jakarta.persistence.Generation
- 
- 
+ import jakarta.persistence.GenerationType;
+ import jakarta.persistence.Column;
+
+ import lombok.Data;
+ import lombok.NoArgsConstructor;
+ import lombok.AllArgsConstructor;
+ @Entity
+ @Table(name="user")
+ @Data
+ @NoArgsConstructor
+ @AllArgsConstructor
+
  public class user{
-       
+       @Id
+       @GeneratedValue(strategy=GenerationType.IDENTITY)
+       private Long id;
+       private String name;
+       @Column(unique=true)
  }
