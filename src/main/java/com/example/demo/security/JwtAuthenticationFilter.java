@@ -1,3 +1,3 @@
-public class JwtAuthenticationEntryFilter{
+public class JwtAuthenticationFilter{
     
 }
