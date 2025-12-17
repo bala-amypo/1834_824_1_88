@@ -1,3 +1,3 @@
-public class JwkTokenProvider{
+public class JwtTokenProvider{
     
 }
