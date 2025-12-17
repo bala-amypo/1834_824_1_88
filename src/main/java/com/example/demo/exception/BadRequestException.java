@@ -1,3 +1,3 @@
-public class bad{
+public class BadRequestException{
     
 }

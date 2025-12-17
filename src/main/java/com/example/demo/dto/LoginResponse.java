@@ -1,3 +1,3 @@
-public class response{
+public class LoginResponse{
     
 }

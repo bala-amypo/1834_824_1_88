@@ -1,3 +1,3 @@
-public class handler{
+public class GlobalExceptionHandler{
     
 }

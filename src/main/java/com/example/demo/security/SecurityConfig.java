@@ -1,3 +1,3 @@
-public class secconfig{
+public class SecurityConfig{
     
 }

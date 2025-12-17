@@ -1,3 +1,3 @@
-public class conflict{
+public class ConflictException{
     
 }
