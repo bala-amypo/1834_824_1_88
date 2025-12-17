@@ -1,3 +1,3 @@
-public class ResourceNoFound{
+public class ResourceNotFoundException{
     
 }
