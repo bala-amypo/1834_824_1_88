@@ -1,4 +1,1 @@
-@Entity
-public class apart{
-
-}
+package com.
