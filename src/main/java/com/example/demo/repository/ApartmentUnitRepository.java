@@ -8,5 +8,4 @@ import com.example.demo.model.ApartmentUnit;
 
 public interface ApartmentUnitRepository extends JpaRepository<ApartmentUnit, Long> {
     
-
 }         
