@@ -4,4 +4,8 @@ public interface BookingLog{
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.example.demo.model.BookingLogRepository;
+import com.example.demo.model.BookingLog;
+
+public interface BookingLogRepository extends JpaRepository<BookingLog, Long>{
+
+}
