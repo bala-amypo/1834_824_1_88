@@ -1,1 +1,3 @@
-public class Apartment
+public interface Apartment{
+
+}

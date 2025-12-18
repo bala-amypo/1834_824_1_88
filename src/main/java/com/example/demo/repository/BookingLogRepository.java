@@ -1,3 +1,4 @@
-public class BookingLogRepository{
-    
+
+public interface BookingLogRepository{
+
 }
