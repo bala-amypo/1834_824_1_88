@@ -4,26 +4,26 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.example.demo.model.ApartmentUnit;
-import com.example.demo.repository.ApartmentUnitRepository;
-import com.example.demo.service.ApartmentUnitService;
+import com.example.demo.model.Facility;
+import com.example.demo.repository.FacilityRepository;
+import com.example.demo.service.FacilityService;
 
 @Service
-public class ApartmentUnitServiceImpl implements ApartmentUnitService {
+public class FacilityServiceImpl implements FacilityService {
 
-    private final ApartmentUnitRepository apartmentUnitRepository;
+    private final FacilityRepository facilityRepository;
 
-    public ApartmentUnitServiceImpl(ApartmentUnitRepository apartmentUnitRepository) {
-        this.apartmentUnitRepository = apartmentUnitRepository;
+    public FacilityServiceImpl(FacilityRepository facilityRepository) {
+        this.facilityRepository = facilityRepository;
     }
 
     @Override
-    public ApartmentUnit save(ApartmentUnit unit) {
-        return apartmentUnitRepository.save(unit);
+    public Facility save(Facility facility) {
+        return facilityRepository.save(facility);
     }
 
     @Override
-    public List<ApartmentUnit> getAll() {
-        return apartmentUnitRepository.findAll();
+    public List<Facility> getAllFacilities() {
+        return facilityRepository.findAll();
     }
 }
