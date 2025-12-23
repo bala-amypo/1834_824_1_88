@@ -1,20 +1,14 @@
 package com.example.demo.model;
- 
-import jakarta.persistence.Column;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;    
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Column;
 
 @Entity
-@Table(
-    name = "users",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = "email")
-    }
-)
+@Table(name = "users")
 public class User {
 
     @Id
@@ -23,60 +17,55 @@ public class User {
 
     private String name;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String email;
 
     private String password;
 
-    private String role = "RESIDENT";
+    // ADMIN or RESIDENT
+    private String role;
 
+    // No-args constructor (MANDATORY for JPA)
     public User() {
     }
 
-    public User(Long id, String name, String email, String password, String role) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-    }
-
+    // Getters and Setters
     public Long getId() {
         return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getRole() {
-        return role;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
     }
 
+    public String getPassword() {
+        return password;
+    }
+ 
     public void setPassword(String password) {
         this.password = password;
     }
-
+ 
+    public String getRole() {
+        return role;
+    }
+ 
     public void setRole(String role) {
         this.role = role;
     }
