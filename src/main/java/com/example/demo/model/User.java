@@ -22,14 +22,11 @@ public class User {
 
     private String password;
 
-    // ADMIN or RESIDENT
     private String role;
 
-    // No-args constructor (MANDATORY for JPA)
     public User() {
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }

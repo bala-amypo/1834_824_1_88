@@ -25,7 +25,6 @@ public class Booking {
 
     private LocalDateTime endTime;
 
-    // CREATED / CANCELLED
     private String status;
 
     public Booking() {
