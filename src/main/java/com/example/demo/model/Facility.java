@@ -6,7 +6,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Facility {
 
     @Id
@@ -18,50 +25,9 @@ public class Facility {
 
     private String description;
 
+    // HH:mm
     private String openTime;
 
+    // HH:mm
     private String closeTime;
-
-    public Facility() {
-    }
-
-    public Long getId() {
-        return id;
-    }
- 
-    public void setId(Long id) {
-        this.id = id;
-    }
- 
-    public String getName() {
-        return name;
-    }
- 
-    public void setName(String name) {
-        this.name = name;
-    }
- 
-    public String getDescription() {
-        return description;
-    }
- 
-    public void setDescription(String description) {
-        this.description = description;
-    }
- 
-    public String getOpenTime() {
-        return openTime;
-    }
- 
-    public void setOpenTime(String openTime) {
-        this.openTime = openTime;
-    }
- 
-    public String getCloseTime() {
-        return closeTime;
-    }
- 
-    public void setCloseTime(String closeTime) {
-        this.closeTime = closeTime;
-    }
 }
