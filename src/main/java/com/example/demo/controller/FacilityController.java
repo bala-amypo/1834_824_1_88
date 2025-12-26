@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.model.Facility;
 import com.example.demo.service.FacilityService;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -16,12 +17,12 @@ public class FacilityController {
     }
 
     @PostMapping
-    public Facility save(@RequestBody Facility facility) {
-        return service.save(facility);
+    public Facility addFacility(@RequestBody Facility facility) {
+        return service.addFacility(facility);
     }
 
     @GetMapping
-    public List<Facility> getAll() {
-        return service.getAll();
+    public List<Facility> getAllFacilities() {
+        return service.getAllFacilities();
     }
 }
