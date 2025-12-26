@@ -8,6 +8,7 @@ import com.example.demo.service.ApartmentUnitService;
 
 import java.util.List;
 
+@Service
 public class ApartmentUnitServiceImpl implements ApartmentUnitService {
 
     private final ApartmentUnitRepository unitRepo;

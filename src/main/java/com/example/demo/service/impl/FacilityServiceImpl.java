@@ -7,6 +7,7 @@ import com.example.demo.service.FacilityService;
 
 import java.util.List;
 
+@Service
 public class FacilityServiceImpl implements FacilityService {
 
     private final FacilityRepository repo;

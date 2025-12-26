@@ -10,6 +10,7 @@ import com.example.demo.repository.UserRepository;
 import com.example.demo.service.BookingLogService;
 import com.example.demo.service.BookingService;
 
+@Service
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepo;

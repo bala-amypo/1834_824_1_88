@@ -8,6 +8,7 @@ import com.example.demo.service.BookingLogService;
 
 import java.util.List;
 
+@Service
 public class BookingLogServiceImpl implements BookingLogService {
 
     private final BookingLogRepository logRepo;
