@@ -9,14 +9,7 @@ import jakarta.persistence.PrePersist;
 
 import java.time.LocalDateTime;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class BookingLog {
 
     @Id
@@ -30,8 +23,43 @@ public class BookingLog {
 
     private LocalDateTime loggedAt;
 
+    public BookingLog() {
+    }
+
     @PrePersist
     public void onCreate() {
         this.loggedAt = LocalDateTime.now();
+    }
+
+    public Long getId() {
+        return id;
+    }
+ 
+    public void setId(Long id) {
+        this.id = id;
+    }
+ 
+    public Booking getBooking() {
+        return booking;
+    }
+ 
+    public void setBooking(Booking booking) {
+        this.booking = booking;
+    }
+ 
+    public String getLogMessage() {
+        return logMessage;
+    }
+ 
+    public void setLogMessage(String logMessage) {
+        this.logMessage = logMessage;
+    }
+ 
+    public LocalDateTime getLoggedAt() {
+        return loggedAt;
+    }
+ 
+    public void setLoggedAt(LocalDateTime loggedAt) {
+        this.loggedAt = loggedAt;
     }
 }
