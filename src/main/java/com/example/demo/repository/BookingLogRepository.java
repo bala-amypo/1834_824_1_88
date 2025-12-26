@@ -1,18 +1,13 @@
 package com.example.demo.repository;
 
+import com.example.demo.model.Booking;
 import com.example.demo.model.BookingLog;
-import java.util.*;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public class BookingLogRepository {
+import java.util.List;
 
-    private final Map<Long, List<BookingLog>> store = new HashMap<>();
+public interface BookingLogRepository extends JpaRepository<BookingLog, Long> {
 
-    public BookingLog save(BookingLog log) {
-        store.computeIfAbsent(log.getBooking().getId(), k -> new ArrayList<>()).add(log);
-        return log;
-    }
+    List<BookingLog> findByBookingOrderByLoggedAtAsc(Booking booking);
 
-    public List<BookingLog> findByBookingId(Long id) {
-        return store.getOrDefault(id, new ArrayList<>());
-    }
 }
