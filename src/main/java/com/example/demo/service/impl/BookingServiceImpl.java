@@ -9,6 +9,7 @@ import com.example.demo.repository.FacilityRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.BookingLogService;
 import com.example.demo.service.BookingService;
+import org.springframework.stereotype.Service;
 
 @Service
 public class BookingServiceImpl implements BookingService {

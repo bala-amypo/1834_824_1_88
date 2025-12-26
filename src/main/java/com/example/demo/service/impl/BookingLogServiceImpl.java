@@ -5,6 +5,7 @@ import com.example.demo.model.BookingLog;
 import com.example.demo.repository.BookingLogRepository;
 import com.example.demo.repository.BookingRepository;
 import com.example.demo.service.BookingLogService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
