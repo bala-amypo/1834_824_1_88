@@ -1,50 +1,40 @@
 package com.example.demo.service.impl;
 
-import java.util.List;
+import com.example.demo.exception.ConflictException;
+import com.example.demo.model.*;
+import com.example.demo.repository.*;
+import com.example.demo.service.*;
 
-import org.springframework.stereotype.Service;
-
-import com.example.demo.model.Booking;
-import com.example.demo.model.BookingLog;
-import com.example.demo.repository.BookingRepository;
-import com.example.demo.service.BookingLogService;
-import com.example.demo.service.BookingService;
-
-@Service
 public class BookingServiceImpl implements BookingService {
+    private final BookingRepository bookRepo;
+    private final FacilityRepository facRepo;
+    private final UserRepository userRepo;
+    private final BookingLogService logService;
 
-    private final BookingRepository bookingRepository;
-    private final BookingLogService bookingLogService;
-
-    public BookingServiceImpl(
-            BookingRepository bookingRepository,
-            BookingLogService bookingLogService) {
-        this.bookingRepository = bookingRepository;
-        this.bookingLogService = bookingLogService;
+    public BookingServiceImpl(BookingRepository b,FacilityRepository f,
+                              UserRepository u,BookingLogService l){
+        bookRepo=b; facRepo=f; userRepo=u; logService=l;
     }
 
-    @Override
-    public Booking createBooking(Booking booking) {
-
-        List<Booking> conflicts =
-                bookingRepository.findByFacilityAndStartTimeLessThanAndEndTimeGreaterThan(
-                        booking.getFacility(),
-                        booking.getEndTime(),
-                        booking.getStartTime()
-                );
-
-        if (!conflicts.isEmpty()) {
-            throw new RuntimeException("Booking conflict detected");
-        }
-
-        Booking savedBooking = bookingRepository.save(booking);
-
-        BookingLog log = new BookingLog();
-        log.setBooking(savedBooking);
-        log.setLogMessage("Booking created");
-
-        bookingLogService.save(log);
-
-        return savedBooking;
+    public Booking createBooking(Long fid,Long uid,Booking b){
+        Facility f=facRepo.findById(fid).get();
+        User u=userRepo.findById(uid).get();
+        if(!bookRepo.findByFacilityAndStartTimeLessThanAndEndTimeGreaterThan(
+                f,b.getEndTime(),b.getStartTime()).isEmpty())
+            throw new ConflictException("conflict");
+        b.setFacility(f); b.setUser(u); b.setStatus(Booking.STATUS_CONFIRMED);
+        Booking saved=bookRepo.save(b);
+        logService.addLog(saved.getId(),"Created");
+        return saved;
     }
+
+    public Booking cancelBooking(Long id){
+        Booking b=bookRepo.findById(id).get();
+        b.setStatus(Booking.STATUS_CANCELLED);
+        bookRepo.save(b);
+        logService.addLog(id,"Cancelled");
+        return b;
+    }
+
+    public Booking getBooking(Long id){return bookRepo.findById(id).get();}
 }

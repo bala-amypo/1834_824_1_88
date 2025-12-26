@@ -1,29 +1,26 @@
 package com.example.demo.service.impl;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
-import com.example.demo.model.ApartmentUnit;
-import com.example.demo.repository.ApartmentUnitRepository;
+import com.example.demo.model.*;
+import com.example.demo.repository.*;
 import com.example.demo.service.ApartmentUnitService;
+import java.util.Optional;
 
-@Service
 public class ApartmentUnitServiceImpl implements ApartmentUnitService {
+    private final ApartmentUnitRepository unitRepo;
+    private final UserRepository userRepo;
 
-    private final ApartmentUnitRepository apartmentUnitRepository;
-
-    public ApartmentUnitServiceImpl(ApartmentUnitRepository apartmentUnitRepository) {
-        this.apartmentUnitRepository = apartmentUnitRepository;
+    public ApartmentUnitServiceImpl(ApartmentUnitRepository u, UserRepository r){
+        unitRepo=u; userRepo=r;
     }
 
-    @Override
-    public ApartmentUnit save(ApartmentUnit unit) {
-        return apartmentUnitRepository.save(unit);
+    public ApartmentUnit assignUnitToUser(Long userId, ApartmentUnit unit){
+        User u=userRepo.findById(userId).get();
+        unit.setOwner(u);
+        return unitRepo.save(unit);
     }
 
-    @Override
-    public List<ApartmentUnit> getAll() {
-        return apartmentUnitRepository.findAll();
+    public ApartmentUnit getUnitByUser(Long id){
+        User u=userRepo.findById(id).get();
+        return unitRepo.findByOwner(u).get();
     }
 }
