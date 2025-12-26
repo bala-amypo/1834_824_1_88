@@ -5,10 +5,12 @@ import com.example.demo.model.BookingLog;
 import com.example.demo.repository.BookingLogRepository;
 import com.example.demo.repository.BookingRepository;
 import com.example.demo.service.BookingLogService;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Service   //  ← THIS WAS MISSING
 public class BookingLogServiceImpl implements BookingLogService {
 
     private final BookingLogRepository repository;
@@ -21,12 +23,12 @@ public class BookingLogServiceImpl implements BookingLogService {
     }
 
     @Override
-    public BookingLog addLog(Long bookingId, String message) {
-        Booking booking = bookingRepository.findById(bookingId).orElse(null);
+    public BookingLog addLog(Long bookingId, String msg) {
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow();
 
         BookingLog log = new BookingLog();
         log.setBooking(booking);
-        log.setLogMessage(message);
+        log.setLogMessage(msg);
         log.setLoggedAt(LocalDateTime.now());
 
         return repository.save(log);
@@ -34,7 +36,7 @@ public class BookingLogServiceImpl implements BookingLogService {
 
     @Override
     public List<BookingLog> getLogsByBooking(Long bookingId) {
-        Booking booking = bookingRepository.findById(bookingId).orElse(null);
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow();
         return repository.findByBookingOrderByLoggedAtAsc(booking);
     }
 }
