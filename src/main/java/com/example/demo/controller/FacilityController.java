@@ -17,12 +17,12 @@ public class FacilityController {
     }
 
     @PostMapping
-    public Facility save(@RequestBody Facility facility) {
+    public Facility addFacility(@RequestBody Facility facility) {
         return service.addFacility(facility);
     }
 
     @GetMapping
-    public List<Facility> getAll() {
+    public List<Facility> getAllFacilities() {
         return service.getAllFacilities();
     }
 }
