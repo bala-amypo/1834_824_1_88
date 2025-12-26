@@ -1,43 +1,49 @@
 package com.example.demo.model;
 
-import com.example.demo.model.BookingStatus;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
 public class Booking {
 
+    public static final BookingStatus STATUS_CONFIRMED = BookingStatus.STATUS_CONFIRMED;
+    public static final BookingStatus STATUS_CANCELLED = BookingStatus.STATUS_CANCELLED;
+
+    @Id
+    @GeneratedValue
     private Long id;
+
+    @ManyToOne
     private Facility facility;
+
+    @ManyToOne
     private User user;
+
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private BookingStatus status;
 
-    public Booking() {
-        this.status = BookingStatus.STATUS_CONFIRMED;
+    @Enumerated(EnumType.STRING)
+    private BookingStatus status = BookingStatus.STATUS_CONFIRMED;
+
+    public Booking(){}
+
+    public Booking(Long id, Facility f, User u, LocalDateTime s, LocalDateTime e, BookingStatus st){
+        this.id=id; this.facility=f; this.user=u;
+        this.startTime=s; this.endTime=e;
+        this.status = st==null ? BookingStatus.STATUS_CONFIRMED : st;
     }
 
-    public Booking(Long id, Facility facility, User user,
-                   LocalDateTime startTime, LocalDateTime endTime,
-                   BookingStatus status) {
-        this.id = id;
-        this.facility = facility;
-        this.user = user;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.status = status == null ? BookingStatus.STATUS_CONFIRMED : status;
-    }
-
-    public Long getId() { return id; }
-    public Facility getFacility() { return facility; }
-    public User getUser() { return user; }
-    public LocalDateTime getStartTime() { return startTime; }
-    public LocalDateTime getEndTime() { return endTime; }
-    public BookingStatus getStatus() { return status; }
-
-    public void setId(Long id) { this.id = id; }
-    public void setFacility(Facility facility) { this.facility = facility; }
-    public void setUser(User user) { this.user = user; }
-    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
-    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
-    public void setStatus(BookingStatus status) { this.status = status; }
+    // getters setters
+    public Long getId(){return id;}
+    public void setId(Long id){this.id=id;}
+    public Facility getFacility(){return facility;}
+    public void setFacility(Facility f){this.facility=f;}
+    public User getUser(){return user;}
+    public void setUser(User u){this.user=u;}
+    public LocalDateTime getStartTime(){return startTime;}
+    public void setStartTime(LocalDateTime s){this.startTime=s;}
+    public LocalDateTime getEndTime(){return endTime;}
+    public void setEndTime(LocalDateTime e){this.endTime=e;}
+    public BookingStatus getStatus(){return status;}
+    public void setStatus(BookingStatus s){this.status=s;}
 }
