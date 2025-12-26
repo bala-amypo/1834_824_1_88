@@ -4,6 +4,6 @@ import com.example.demo.model.BookingLog;
 import java.util.List;
 
 public interface BookingLogService {
-    BookingLog logBooking(Long bookingId, String message);
+    void addLog(Long bookingId, String message);
     List<BookingLog> getLogsByBooking(Long bookingId);
 }

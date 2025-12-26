@@ -42,3 +42,4 @@ public class Booking {
         this.status = status;
     }
 }
+                

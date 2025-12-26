@@ -19,14 +19,12 @@ public class BookingLog {
     }
 
     public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
     public Booking getBooking() { return booking; }
-    public void setBooking(Booking booking) { this.booking = booking; }
-
     public String getMessage() { return message; }
-    public void setMessage(String message) { this.message = message; }
-
     public LocalDateTime getLoggedAt() { return loggedAt; }
+
+    public void setId(Long id) { this.id = id; }
+    public void setBooking(Booking booking) { this.booking = booking; }
+    public void setMessage(String message) { this.message = message; }
     public void setLoggedAt(LocalDateTime loggedAt) { this.loggedAt = loggedAt; }
 }
