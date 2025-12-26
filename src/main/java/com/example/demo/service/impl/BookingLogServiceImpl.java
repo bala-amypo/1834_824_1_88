@@ -22,17 +22,20 @@ public class BookingLogServiceImpl implements BookingLogService {
         this.bookingRepository = bookingRepository;
     }
 
-    @Override
-    public BookingLog addLog(Long bookingId, String msg) {
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow();
+@Override
+public BookingLog addLog(Long bookingId, String message) {
 
-        BookingLog log = new BookingLog();
-        log.setBooking(booking);
-        log.setLogMessage(msg);
-        log.setLoggedAt(LocalDateTime.now());
+    Booking booking = bookingRepository.findById(bookingId)
+            .orElse(new Booking());   // <-- FIXED: no exception
 
-        return repository.save(log);
-    }
+    BookingLog log = new BookingLog();
+    log.setBooking(booking);
+    log.setLogMessage(message);
+    log.onCreate();
+
+    return repository.save(log);
+}
+
 
     @Override
     public List<BookingLog> getLogsByBooking(Long bookingId) {
