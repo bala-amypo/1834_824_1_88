@@ -5,6 +5,7 @@ import com.example.demo.repository.BookingLogRepository;
 import com.example.demo.service.BookingLogService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -17,15 +18,13 @@ public class BookingLogServiceImpl implements BookingLogService {
     }
 
     @Override
-    public BookingLog addLog(Long bookingId, String message) {
-        BookingLog log = new BookingLog();
-        log.setBookingId(bookingId);
-        log.setMessage(message);
-        return repository.save(log);
+    public void addLog(Long bookingId, String message) {
+        BookingLog log = new BookingLog(bookingId, message, LocalDateTime.now());
+        repository.save(log);
     }
 
     @Override
-    public List<BookingLog> getLogsByBooking(Long bookingId) {
-        return repository.findByBookingId(bookingId);
+    public List<BookingLog> getLogs(Long bookingId) {
+        return repository.findByBookingIdOrderByLoggedAtAsc(bookingId);
     }
 }

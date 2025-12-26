@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 public class BookingLog {
@@ -11,26 +12,20 @@ public class BookingLog {
 
     private Long bookingId;
     private String message;
+    private LocalDateTime loggedAt;
 
     public BookingLog() {}
 
-    public Long getId() {
-        return id;
-    }
-
-    public Long getBookingId() {
-        return bookingId;
-    }
-
-    public void setBookingId(Long bookingId) {
+    public BookingLog(Long bookingId, String message, LocalDateTime loggedAt) {
         this.bookingId = bookingId;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
         this.message = message;
+        this.loggedAt = loggedAt;
     }
+
+    public Long getBooking() { return bookingId; }
+    public String getMessage() { return message; }
+    public LocalDateTime getLoggedAt() { return loggedAt; }
+
+    public void setBookingId(Long bookingId) { this.bookingId = bookingId; }
+    public void setMessage(String message) { this.message = message; }
 }

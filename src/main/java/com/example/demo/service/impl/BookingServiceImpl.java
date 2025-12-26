@@ -1,43 +1,44 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.model.Booking;
-import com.example.demo.model.BookingLog;
-import com.example.demo.repository.BookingLogRepository;
 import com.example.demo.repository.BookingRepository;
+import com.example.demo.service.BookingLogService;
 import com.example.demo.service.BookingService;
 import org.springframework.stereotype.Service;
-import java.util.List;
 
 @Service
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
-    private final BookingLogRepository logRepository;
+    private final BookingLogService logService;
 
     public BookingServiceImpl(BookingRepository bookingRepository,
-                              BookingLogRepository logRepository) {
+                              BookingLogService logService) {
         this.bookingRepository = bookingRepository;
-        this.logRepository = logRepository;
+        this.logService = logService;
     }
 
     @Override
-    public Booking createBooking(Long facilityId, Long userId, Booking booking) {
-        booking.setFacilityId(facilityId);
-        booking.setUserId(userId);
-        booking.setStatus("CREATED");
+    public Booking createBooking(Long userId, Long facilityId, Booking booking) {
+        booking.setUser(userId);
+        booking.setFacility(facilityId);
+        booking.setStatus(Booking.STATUS_CONFIRMED);
 
         Booking saved = bookingRepository.save(booking);
-
-        BookingLog log = new BookingLog();
-        log.setBookingId(saved.getId());
-        log.setMessage("Booking created");
-        logRepository.save(log);
-
+        logService.addLog(saved.getId(), "Booking created");
         return saved;
     }
 
     @Override
-    public List<Booking> getAll() {
-        return bookingRepository.findAll();
+    public Booking cancelBooking(Long bookingId) {
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow();
+        booking.setStatus(Booking.STATUS_CANCELLED);
+        logService.addLog(bookingId, "Booking cancelled");
+        return bookingRepository.save(booking);
+    }
+
+    @Override
+    public Booking getBooking(Long bookingId) {
+        return bookingRepository.findById(bookingId).orElse(null);
     }
 }
