@@ -36,4 +36,9 @@ public class ApartmentUnitServiceImpl implements ApartmentUnitService {
     public List<ApartmentUnit> getAll() {
         return unitRepo.findAll();
     }
+    @Override
+public ApartmentUnit save(ApartmentUnit unit) {
+    return unitRepo.save(unit);
+}
+
 }
