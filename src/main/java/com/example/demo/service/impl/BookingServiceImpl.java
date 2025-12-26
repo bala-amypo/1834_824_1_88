@@ -15,20 +15,20 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepo;
     private final BookingLogService logService;
 
-    public BookingServiceImpl(BookingRepository b, FacilityRepository f, UserRepository u, BookingLogService l) {
-        bookingRepo = b; facilityRepo = f; userRepo = u; logService = l;
+    public BookingServiceImpl(BookingRepository b,FacilityRepository f,UserRepository u,BookingLogService l){
+        bookingRepo=b; facilityRepo=f; userRepo=u; logService=l;
     }
 
     @Override
-    public Booking createBooking(Long facilityId, Long userId, Booking booking) {
+    public Booking createBooking(Long facilityId,Long userId,Booking booking){
         Facility fac = facilityRepo.findById(facilityId).orElseThrow();
         User u = userRepo.findById(userId).orElseThrow();
 
-        List<Booking> conflicts =
-            bookingRepo.findByFacilityAndStartTimeLessThanAndEndTimeGreaterThan(
-                    fac, booking.getEndTime(), booking.getStartTime());
-
-        if(!conflicts.isEmpty()) throw new ConflictException("Slot busy");
+        if(!bookingRepo
+                .findByFacilityAndStartTimeLessThanAndEndTimeGreaterThan(
+                        fac, booking.getEndTime(), booking.getStartTime())
+                .isEmpty())
+            throw new ConflictException("Slot busy");
 
         booking.setFacility(fac);
         booking.setUser(u);
@@ -40,21 +40,21 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Booking cancelBooking(Long id) {
+    public Booking cancelBooking(Long id){
         Booking b = bookingRepo.findById(id).orElseThrow();
         b.setStatus(Booking.STATUS_CANCELLED);
-        Booking saved = bookingRepo.save(b);
+        Booking s = bookingRepo.save(b);
         logService.addLog(id,"Cancelled");
-        return saved;
+        return s;
     }
 
     @Override
-    public Booking getBooking(Long id) {
+    public Booking getBooking(Long id){
         return bookingRepo.findById(id).orElseThrow();
     }
 
     @Override
-    public List<Booking> getAll() {
+    public List<Booking> getAll(){
         return bookingRepo.findAll();
     }
 }
