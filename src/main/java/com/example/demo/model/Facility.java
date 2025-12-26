@@ -17,51 +17,31 @@ public class Facility {
     private String name;
 
     private String description;
-
     private String openTime;
-
     private String closeTime;
 
-    public Facility() {
-    }
+    public Facility() {}
 
-    public Long getId() {
-        return id;
-    }
- 
-    public void setId(Long id) {
+    public Facility(Long id, String name, String description, String openTime, String closeTime) {
         this.id = id;
-    }
- 
-    public String getName() {
-        return name;
-    }
- 
-    public void setName(String name) {
         this.name = name;
-    }
- 
-    public String getDescription() {
-        return description;
-    }
- 
-    public void setDescription(String description) {
         this.description = description;
-    }
- 
-    public String getOpenTime() {
-        return openTime;
-    }
- 
-    public void setOpenTime(String openTime) {
         this.openTime = openTime;
-    }
- 
-    public String getCloseTime() {
-        return closeTime;
-    }
- 
-    public void setCloseTime(String closeTime) {
         this.closeTime = closeTime;
     }
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public String getOpenTime() { return openTime; }
+    public void setOpenTime(String openTime) { this.openTime = openTime; }
+
+    public String getCloseTime() { return closeTime; }
+    public void setCloseTime(String closeTime) { this.closeTime = closeTime; }
 }
