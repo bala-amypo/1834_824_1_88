@@ -1,49 +1,43 @@
 package com.example.demo.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity
 public class Booking {
 
-    public static final String STATUS_CONFIRMED = "CONFIRMED";
-    public static final String STATUS_CANCELLED = "CANCELLED";
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private Long userId;
-    private Long facilityId;
-
+    private Facility facility;
+    private User user;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-
-    private String status;
+    private BookingStatus status;
 
     public Booking() {}
 
-    public Booking(Long userId, Long facilityId,
+    public Booking(Long id, Facility facility, User user,
                    LocalDateTime startTime, LocalDateTime endTime) {
-        this.userId = userId;
-        this.facilityId = facilityId;
+        this.id = id;
+        this.facility = facility;
+        this.user = user;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.status = STATUS_CONFIRMED;
+        this.status = BookingStatus.STATUS_PENDING;
     }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public Long getUser() { return userId; }
-    public void setUser(Long userId) { this.userId = userId; }
+    public Facility getFacility() { return facility; }
+    public void setFacility(Facility facility) { this.facility = facility; }
 
-    public Long getFacility() { return facilityId; }
-    public void setFacility(Long facilityId) { this.facilityId = facilityId; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
     public LocalDateTime getStartTime() { return startTime; }
-    public LocalDateTime getEndTime() { return endTime; }
+    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public LocalDateTime getEndTime() { return endTime; }
+    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
+
+    public BookingStatus getStatus() { return status; }
+    public void setStatus(BookingStatus status) { this.status = status; }
 }
