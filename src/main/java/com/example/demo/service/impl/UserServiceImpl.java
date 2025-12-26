@@ -32,4 +32,9 @@ public class UserServiceImpl implements UserService {
     public List<User> getAllUsers() {
         return repo.findAll();
     }
+    @Override
+public User saveUser(User user) {
+    return repo.save(user);
+}
+
 }
