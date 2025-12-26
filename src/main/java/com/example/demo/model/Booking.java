@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.example.demo.model.BookingStatus;
 import java.time.LocalDateTime;
 
 public class Booking {
