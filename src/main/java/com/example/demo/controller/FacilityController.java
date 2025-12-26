@@ -1,33 +1,27 @@
 package com.example.demo.controller;
 
-import java.util.List;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.example.demo.model.Facility;
 import com.example.demo.service.FacilityService;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/facilities")
 public class FacilityController {
 
-    private final FacilityService facilityService;
+    private final FacilityService service;
 
-    public FacilityController(FacilityService facilityService) {
-        this.facilityService = facilityService;
+    public FacilityController(FacilityService service) {
+        this.service = service;
     }
 
     @PostMapping
-    public Facility createFacility(@RequestBody Facility facility) {
-        return facilityService.save(facility);
+    public Facility save(@RequestBody Facility facility) {
+        return service.save(facility);
     }
 
     @GetMapping
-    public List<Facility> getAllFacilities() {
-        return facilityService.getAllFacilities();
+    public List<Facility> getAll() {
+        return service.getAll();
     }
 }

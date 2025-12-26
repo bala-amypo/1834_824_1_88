@@ -4,7 +4,6 @@ import com.example.demo.model.Facility;
 import com.example.demo.repository.FacilityRepository;
 import com.example.demo.service.FacilityService;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
