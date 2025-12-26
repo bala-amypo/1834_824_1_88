@@ -1,25 +1,29 @@
 package com.example.demo.controller;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.example.demo.model.Booking;
 import com.example.demo.service.BookingService;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/bookings")
 public class BookingController {
 
-    private final BookingService bookingService;
+    private final BookingService service;
 
-    public BookingController(BookingService bookingService) {
-        this.bookingService = bookingService;
+    public BookingController(BookingService service) {
+        this.service = service;
     }
 
     @PostMapping
-    public Booking createBooking(@RequestBody Booking booking) {
-        return bookingService.createBooking(booking);
+    public Booking create(@RequestParam Long facilityId,
+                          @RequestParam Long userId,
+                          @RequestBody Booking booking) {
+        return service.createBooking(facilityId, userId, booking);
+    }
+
+    @GetMapping
+    public List<Booking> getAll() {
+        return service.getAll();
     }
 }

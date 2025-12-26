@@ -1,13 +1,6 @@
 package com.example.demo.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-
-import java.time.LocalDateTime;
+import jakarta.persistence.*;
 
 @Entity
 public class BookingLog {
@@ -16,35 +9,28 @@ public class BookingLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    private Booking booking;
-
-    private String logMessage;
-    private LocalDateTime loggedAt;
+    private Long bookingId;
+    private String message;
 
     public BookingLog() {}
 
-    public BookingLog(Long id, Booking booking, String logMessage, LocalDateTime loggedAt) {
-        this.id = id;
-        this.booking = booking;
-        this.logMessage = logMessage;
-        this.loggedAt = loggedAt;
+    public Long getId() {
+        return id;
     }
 
-    @PrePersist
-    public void onCreate() {
-        this.loggedAt = LocalDateTime.now();
+    public Long getBookingId() {
+        return bookingId;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public void setBookingId(Long bookingId) {
+        this.bookingId = bookingId;
+    }
 
-    public Booking getBooking() { return booking; }
-    public void setBooking(Booking booking) { this.booking = booking; }
+    public String getMessage() {
+        return message;
+    }
 
-    public String getLogMessage() { return logMessage; }
-    public void setLogMessage(String logMessage) { this.logMessage = logMessage; }
-
-    public LocalDateTime getLoggedAt() { return loggedAt; }
-    public void setLoggedAt(LocalDateTime loggedAt) { this.loggedAt = loggedAt; }
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }

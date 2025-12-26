@@ -1,42 +1,43 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.model.Booking;
+import com.example.demo.model.BookingLog;
+import com.example.demo.repository.BookingLogRepository;
 import com.example.demo.repository.BookingRepository;
-import com.example.demo.service.BookingLogService;
 import com.example.demo.service.BookingService;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 public class BookingServiceImpl implements BookingService {
 
-    private final BookingRepository repository;
-    private final BookingLogService logService;
+    private final BookingRepository bookingRepository;
+    private final BookingLogRepository logRepository;
 
-    public BookingServiceImpl(BookingRepository repository, BookingLogService logService) {
-        this.repository = repository;
-        this.logService = logService;
+    public BookingServiceImpl(BookingRepository bookingRepository,
+                              BookingLogRepository logRepository) {
+        this.bookingRepository = bookingRepository;
+        this.logRepository = logRepository;
     }
 
     @Override
     public Booking createBooking(Long facilityId, Long userId, Booking booking) {
         booking.setFacilityId(facilityId);
         booking.setUserId(userId);
-        Booking saved = repository.save(booking);
-        logService.addLog(saved.getId(), "Booking Created");
+        booking.setStatus("CREATED");
+
+        Booking saved = bookingRepository.save(booking);
+
+        BookingLog log = new BookingLog();
+        log.setBookingId(saved.getId());
+        log.setMessage("Booking created");
+        logRepository.save(log);
+
         return saved;
     }
 
     @Override
-    public Booking cancelBooking(Long bookingId) {
-        Booking booking = repository.findById(bookingId).orElseThrow();
-        booking.setStatus("CANCELLED");
-        Booking updated = repository.save(booking);
-        logService.addLog(updated.getId(), "Booking Cancelled");
-        return updated;
-    }
-
-    @Override
-    public Booking getBooking(Long bookingId) {
-        return repository.findById(bookingId).orElseThrow();
+    public List<Booking> getAll() {
+        return bookingRepository.findAll();
     }
 }
