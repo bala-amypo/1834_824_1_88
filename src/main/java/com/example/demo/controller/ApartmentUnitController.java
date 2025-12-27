@@ -1,33 +1,29 @@
 package com.example.demo.controller;
 
-import java.util.List;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.example.demo.model.ApartmentUnit;
 import com.example.demo.service.ApartmentUnitService;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/units")
 public class ApartmentUnitController {
 
-    private final ApartmentUnitService apartmentUnitService;
+    private final ApartmentUnitService service;
 
-    public ApartmentUnitController(ApartmentUnitService apartmentUnitService) {
-        this.apartmentUnitService = apartmentUnitService;
+    public ApartmentUnitController(ApartmentUnitService service) {
+        this.service = service;
     }
 
-    @PostMapping
-    public ApartmentUnit createUnit(@RequestBody ApartmentUnit unit) {
-        return apartmentUnitService.save(unit);
+    // Assign unit to user
+    @PostMapping("/{userId}")
+    public ApartmentUnit assignUnit(@PathVariable Long userId,
+                                    @RequestBody ApartmentUnit unit) {
+        return service.assignUnitToUser(userId, unit);
     }
 
-    @GetMapping
-    public List<ApartmentUnit> getAllUnits() {
-        return apartmentUnitService.getAll();
+    // Get unit by user
+    @GetMapping("/{userId}")
+    public ApartmentUnit getUnitByUser(@PathVariable Long userId) {
+        return service.getUnitByUser(userId);
     }
 }
