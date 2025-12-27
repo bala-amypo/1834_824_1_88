@@ -1,33 +1,29 @@
 package com.example.demo.controller;
 
-import java.util.List;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import com.example.demo.dto.RegisterRequest;
 import com.example.demo.model.User;
 import com.example.demo.service.UserService;
+import org.springframework.web.bind.annotation.*;
 
-@RestController 
+@RestController
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserService userService;
+    private final UserService service;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(UserService service) {
+        this.service = service;
     }
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.saveUser(user);
-    }
+    public User register(@RequestBody RegisterRequest req) {
 
-    @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+        User u = new User();
+        u.setName(req.getName());
+        u.setEmail(req.getEmail());
+        u.setPassword(req.getPassword());
+        u.setRole(req.getRole());
+
+        return service.register(u);
     }
 }
