@@ -2,6 +2,8 @@ package com.example.demo.config;
 
 import com.example.demo.security.JwtAuthenticationFilter;
 import com.example.demo.security.JwtTokenProvider;
+import com.example.demo.security.CustomUserDetailsService;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,58 +18,51 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
-    // 🔐 Authentication Manager Bean
     @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration configuration
-    ) throws Exception {
-        return configuration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+            throws Exception {
+        return config.getAuthenticationManager();
     }
 
-    // 🔒 Password Encoder
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // 🔑 JWT Authentication Filter
+    // ✅ Correct way – Spring injects BOTH arguments
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtTokenProvider tokenProvider) {
-        return new JwtAuthenticationFilter(tokenProvider);
+    public JwtAuthenticationFilter jwtAuthenticationFilter(
+            JwtTokenProvider tokenProvider,
+            CustomUserDetailsService customUserDetailsService) {
+
+        return new JwtAuthenticationFilter(tokenProvider, customUserDetailsService);
     }
 
-    // 🛡️ Security Filter Chain
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   JwtAuthenticationFilter jwtFilter) throws Exception {
+                                                   JwtAuthenticationFilter jwtFilter)
+            throws Exception {
 
         http
-            // Disable CSRF for APIs
             .csrf(csrf -> csrf.disable())
 
-            // Stateless session (JWT based)
             .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-            // Disable form login & basic auth
-            .formLogin(form -> form.disable())
-            .httpBasic(basic -> basic.disable())
-
-            // Authorization rules
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/auth/**",
-                    "/health",
-                    "/swagger-ui.html",
-                    "/swagger-ui/**",
-                    "/v3/api-docs/**"
+                        "/auth/**",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui.html",
+                        "/health"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
+            .httpBasic(http -> http.disable())
+            .formLogin(form -> form.disable());
 
-            // Add JWT Filter
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
