@@ -29,11 +29,10 @@ public class Booking {
     public Booking() {
     }
 
-    // ✅ TEST CONSTRUCTOR (NO ID, 6 PARAMS)
+    // ✅ TEST CONSTRUCTOR (WITHOUT ID) — 5 PARAMS
     public Booking(
             Facility facility,
             User user,
-            ApartmentUnit ignored,   // ← TEST PASSES NULL HERE
             LocalDateTime startTime,
             LocalDateTime endTime,
             String status
@@ -45,7 +44,7 @@ public class Booking {
         this.status = status;
     }
 
-    // ✅ TEST CONSTRUCTOR (WITH ID, 6 PARAMS)
+    // ✅ TEST CONSTRUCTOR (WITH ID) — 6 PARAMS
     public Booking(
             Long id,
             Facility facility,
