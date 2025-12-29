@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 @Entity
 public class Booking {
 
-    // ✅ CONSTANTS USED BY TESTS
     public static final String STATUS_CONFIRMED = "CONFIRMED";
     public static final String STATUS_CANCELLED = "CANCELLED";
 
@@ -25,11 +24,12 @@ public class Booking {
 
     private String status;
 
-    // ✅ NO-ARG CONSTRUCTOR (JPA)
+    // ✅ NO-ARG CONSTRUCTOR
     public Booking() {
+        this.status = STATUS_CONFIRMED;
     }
 
-    // ✅ TEST CONSTRUCTOR (WITHOUT ID) — 5 PARAMS
+    // ✅ WITHOUT ID
     public Booking(
             Facility facility,
             User user,
@@ -41,10 +41,10 @@ public class Booking {
         this.user = user;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.status = status;
+        this.status = (status == null) ? STATUS_CONFIRMED : status;
     }
 
-    // ✅ TEST CONSTRUCTOR (WITH ID) — 6 PARAMS
+    // ✅ WITH ID
     public Booking(
             Long id,
             Facility facility,
@@ -58,7 +58,7 @@ public class Booking {
         this.user = user;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.status = status;
+        this.status = (status == null) ? STATUS_CONFIRMED : status;
     }
 
     // ---------- GETTERS & SETTERS ----------
