@@ -1,12 +1,11 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
-@Table(
-    name = "users",
-    uniqueConstraints = @UniqueConstraint(columnNames = "email")
-)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
 
     @Id
@@ -15,25 +14,19 @@ public class User {
 
     private String name;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String email;
 
+    @JsonIgnore // ✅ NEVER expose password
     private String password;
 
-    // RESIDENT / ADMIN
-    private String role;
+    private String role = "RESIDENT";
 
-    // 🔗 One user owns one apartment unit
-    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "owner")
+    @JsonIgnore // ✅ Break infinite recursion
     private ApartmentUnit apartmentUnit;
 
-    // ---------- CONSTRUCTORS ----------
-
-    public User() {
-        this.role = "RESIDENT"; // default role
-    }
-
-    // ---------- GETTERS & SETTERS ----------
+    // ---------- getters & setters ----------
 
     public Long getId() {
         return id;
@@ -54,11 +47,11 @@ public class User {
     public String getEmail() {
         return email;
     }
-
+ 
     public void setEmail(String email) {
         this.email = email;
     }
-
+ 
     public String getPassword() {
         return password;
     }
