@@ -6,6 +6,10 @@ import java.time.LocalDateTime;
 @Entity
 public class Booking {
 
+    // ✅ REQUIRED CONSTANTS
+    public static final String STATUS_CONFIRMED = "CONFIRMED";
+    public static final String STATUS_CANCELLED = "CANCELLED";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,21 +23,11 @@ public class Booking {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
-    private String status; // CONFIRMED / CANCELLED
+    private String status = STATUS_CONFIRMED;
 
     public Booking() {}
 
-    public Booking(Long id, Facility facility, User user,
-                   LocalDateTime startTime, LocalDateTime endTime,
-                   String status) {
-        this.id = id;
-        this.facility = facility;
-        this.user = user;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.status = status;
-    }
-
+    // getters & setters (ALL REQUIRED)
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
