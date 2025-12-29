@@ -16,12 +16,15 @@ import java.util.List;
 public class JwtTokenProvider {
 
     private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long EXPIRATION = 1000 * 60 * 60; // 1 hour
+    private static final long EXPIRATION = 1000 * 60 * 60; // 1 hour
 
-    // Generate JWT
+    // -------------------------------------------------
+    // TOKEN GENERATION
+    // -------------------------------------------------
     public String generateToken(Long userId, String email, String role) {
         return Jwts.builder()
-                .setSubject(String.valueOf(userId))
+                .setSubject(String.valueOf(userId))          // ✅ subject = userId
+                .claim("userId", userId)                     // ✅ explicit userId
                 .claim("email", email)
                 .claim("role", role)
                 .setIssuedAt(new Date())
@@ -30,31 +33,66 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // Validate JWT
+    // -------------------------------------------------
+    // VALIDATION
+    // -------------------------------------------------
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
             return true;
-        } catch (Exception e) {
+        } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }
 
-    // Authentication object
+    // -------------------------------------------------
+    // AUTHENTICATION (USED BY FILTER)
+    // -------------------------------------------------
     public Authentication getAuthentication(String token) {
         Claims claims = getClaims(token);
 
-        String role = claims.get("role", String.class);
+        String role = getRoleFromToken(token);
+
         List<SimpleGrantedAuthority> authorities =
                 Collections.singletonList(new SimpleGrantedAuthority(role));
 
         return new UsernamePasswordAuthenticationToken(
-                claims.getSubject(),
+                claims.getSubject(),   // principal
                 null,
                 authorities
         );
     }
 
+    // -------------------------------------------------
+    // CLAIM HELPERS (REQUIRED BY FILTER & TESTS)
+    // -------------------------------------------------
+    public Long getUserIdFromToken(String token) {
+        Claims claims = getClaims(token);
+
+        Long userId = claims.get("userId", Long.class);
+
+        // ✅ fallback to subject if claim missing
+        if (userId == null) {
+            return Long.parseLong(claims.getSubject());
+        }
+
+        return userId;
+    }
+
+    public String getEmailFromToken(String token) {
+        return getClaims(token).get("email", String.class);
+    }
+
+    public String getRoleFromToken(String token) {
+        return getClaims(token).get("role", String.class);
+    }
+
+    // -------------------------------------------------
+    // INTERNAL
+    // -------------------------------------------------
     private Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)

@@ -18,12 +18,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.tokenProvider = tokenProvider;
     }
 
-    // Skip auth & swagger
+    // ✅ FIXED skip logic
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getServletPath();
-        return path.startsWith("/auth")
-                || path.startsWith("/swagger")
+        String path = request.getRequestURI();
+
+        return path.startsWith("/auth/")
+                || path.equals("/auth")
+                || path.startsWith("/swagger-ui")
                 || path.startsWith("/v3/api-docs");
     }
 
