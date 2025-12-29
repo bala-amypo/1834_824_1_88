@@ -13,14 +13,13 @@ public class SimpleHelloServlet extends HttpServlet {
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
 
-        // ✅ CRITICAL FIX: clear previous response data
-        resp.resetBuffer();
+        // ✅ THIS IS THE CRITICAL FIX
+        resp.reset();
 
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.setContentType("text/plain");
 
-        // ✅ EXACT output required by tests
-        resp.getWriter().print("Hello Servlet");
+        resp.getWriter().write("Hello Servlet");
     }
 
     @Override
