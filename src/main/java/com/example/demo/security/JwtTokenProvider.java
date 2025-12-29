@@ -1,50 +1,65 @@
 package com.example.demo.security;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import java.security.Key;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+@Component
+public class JwtTokenProvider {
 
-    private final JwtTokenProvider tokenProvider;
+    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final long EXPIRATION = 1000 * 60 * 60; // 1 hour
 
-    public JwtAuthenticationFilter(JwtTokenProvider tokenProvider) {
-        this.tokenProvider = tokenProvider;
+    // Generate JWT
+    public String generateToken(Long userId, String email, String role) {
+        return Jwts.builder()
+                .setSubject(String.valueOf(userId))
+                .claim("email", email)
+                .claim("role", role)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .signWith(key)
+                .compact();
     }
 
-    // 🔴 CRITICAL: Skip auth endpoints
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getServletPath();
-        return path.startsWith("/auth")
-                || path.startsWith("/swagger")
-                || path.startsWith("/v3/api-docs");
-    }
-
-    @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
-
-        String header = request.getHeader("Authorization");
-
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
-
-            if (tokenProvider.validateToken(token)) {
-                Authentication auth = tokenProvider.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(auth);
-            }
+    // Validate JWT
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            return false;
         }
+    }
 
-        filterChain.doFilter(request, response);
+    // Authentication object
+    public Authentication getAuthentication(String token) {
+        Claims claims = getClaims(token);
+
+        String role = claims.get("role", String.class);
+        List<SimpleGrantedAuthority> authorities =
+                Collections.singletonList(new SimpleGrantedAuthority(role));
+
+        return new UsernamePasswordAuthenticationToken(
+                claims.getSubject(),
+                null,
+                authorities
+        );
+    }
+
+    private Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

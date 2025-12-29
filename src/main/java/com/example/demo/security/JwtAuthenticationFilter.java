@@ -18,7 +18,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.tokenProvider = tokenProvider;
     }
 
-    // 🔴 CRITICAL: Skip auth endpoints
+    // Skip auth & swagger
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
