@@ -1,78 +1,10 @@
-// package com.example.demo.security;
-
-// import jakarta.servlet.FilterChain;
-// import jakarta.servlet.ServletException;
-// import jakarta.servlet.http.HttpServletRequest;
-// import jakarta.servlet.http.HttpServletResponse;
-
-// import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-// import org.springframework.security.core.context.SecurityContextHolder;
-// import org.springframework.security.core.userdetails.UserDetails;
-// import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-// import org.springframework.web.filter.OncePerRequestFilter;
-
-// import java.io.IOException;
-
-// public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
-//     private final JwtTokenProvider tokenProvider;
-//     private final CustomUserDetailsService customUserDetailsService;
-
-//     public JwtAuthenticationFilter(JwtTokenProvider tokenProvider,
-//                                    CustomUserDetailsService customUserDetailsService) {
-//         this.tokenProvider = tokenProvider;
-//         this.customUserDetailsService = customUserDetailsService;
-//     }
-
-//     @Override
-//     protected void doFilterInternal(HttpServletRequest request,
-//                                     HttpServletResponse response,
-//                                     FilterChain filterChain)
-//             throws ServletException, IOException {
-
-//         String header = request.getHeader("Authorization");
-
-//         if (header != null && header.startsWith("Bearer ")) {
-
-//             String token = header.substring(7);
-
-//             if (tokenProvider.validateToken(token)) {
-
-//                 Long userId = tokenProvider.getUserIdFromToken(token);
-//                 String email = tokenProvider.getEmailFromToken(token);
-
-//                 UserDetails userDetails =
-//                         customUserDetailsService.loadUserByUsername(email);
-
-//                 UsernamePasswordAuthenticationToken auth =
-//                         new UsernamePasswordAuthenticationToken(
-//                                 userDetails,
-//                                 null,
-//                                 userDetails.getAuthorities()
-//                         );
-
-//                 auth.setDetails(
-//                         new WebAuthenticationDetailsSource().buildDetails(request)
-//                 );
-
-//                 SecurityContextHolder.getContext().setAuthentication(auth);
-//             }
-//         }
-
-//         filterChain.doFilter(request, response);
-//     }
-// }
-
 package com.example.demo.security;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.core.userdetails.*;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -91,20 +23,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain)
+                                    FilterChain chain)
             throws ServletException, IOException {
-
-        String path = request.getServletPath();
-
-        // 🚨 SKIP JWT FILTER FOR SWAGGER & PUBLIC URLS
-        if (path.startsWith("/swagger-ui")
-                || path.startsWith("/v3/api-docs")
-                || path.startsWith("/auth")
-                || path.equals("/health")) {
-
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         String header = request.getHeader("Authorization");
 
@@ -117,19 +37,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UserDetails userDetails =
                         userDetailsService.loadUserByUsername(email);
 
-                UsernamePasswordAuthenticationToken authentication =
+                UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities());
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
 
-                authentication.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request));
-
-                SecurityContextHolder.getContext()
-                        .setAuthentication(authentication);
+                SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
 
-        filterChain.doFilter(request, response);
+        chain.doFilter(request, response);
     }
 }
-

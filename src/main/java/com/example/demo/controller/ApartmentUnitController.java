@@ -1,37 +1,34 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.RegisterRequest;
-import com.example.demo.model.User;
-import com.example.demo.service.UserService;
+import com.example.demo.model.ApartmentUnit;
+import com.example.demo.service.ApartmentUnitService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
-public class UserController {
+@RequestMapping("/units")
+public class ApartmentUnitController {
 
-    private final UserService userService;
+    private final ApartmentUnitService service;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public ApartmentUnitController(ApartmentUnitService service) {
+        this.service = service;
     }
 
-    // PUBLIC – Registration
-    @PostMapping
-    public User register(@RequestBody RegisterRequest request) {
-
-        User user = new User();
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
-
-        return userService.register(user);
+    @PostMapping("/{userId}")
+    public ApartmentUnit assignUnit(@PathVariable Long userId,
+                                    @RequestBody ApartmentUnit unit) {
+        return service.assignUnitToUser(userId, unit);
     }
 
-    // PROTECTED
     @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    public List<ApartmentUnit> getAllUnits() {
+        return service.getAll();
+    }
+
+    @GetMapping("/user/{userId}")
+    public ApartmentUnit getByUser(@PathVariable Long userId) {
+        return service.getUnitByUser(userId);
     }
 }
