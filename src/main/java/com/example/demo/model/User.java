@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -12,17 +13,22 @@ public class User {
 
     private String name;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
     private String password;
 
-    private String role = "RESIDENT";
+    private String role;
 
-    @OneToOne(mappedBy = "owner")
+    // ✅ One User → One ApartmentUnit
+    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private ApartmentUnit apartmentUnit;
 
+    // ---------- CONSTRUCTORS ----------
+
     public User() {
+        this.role = "USER"; // ✅ default role (required by tests)
     }
 
     public User(Long id, String name, String email, String password, String role) {
@@ -46,41 +52,39 @@ public class User {
     public String getName() {
         return name;
     }
- 
+
     public void setName(String name) {
         this.name = name;
     }
- 
+
     public String getEmail() {
         return email;
     }
- 
+
     public void setEmail(String email) {
         this.email = email;
     }
- 
+
     public String getPassword() {
         return password;
     }
- 
+
     public void setPassword(String password) {
         this.password = password;
     }
- 
+
     public String getRole() {
         return role;
     }
- 
+
     public void setRole(String role) {
         this.role = role;
     }
 
-    // ✅ REQUIRED BY TEST
     public ApartmentUnit getApartmentUnit() {
         return apartmentUnit;
     }
 
-    // ✅ REQUIRED BY TEST
     public void setApartmentUnit(ApartmentUnit apartmentUnit) {
         this.apartmentUnit = apartmentUnit;
     }
