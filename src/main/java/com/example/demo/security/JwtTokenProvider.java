@@ -2,39 +2,22 @@ package com.example.demo.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.stereotype.Component;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class JwtTokenProvider {
 
-    private Key key;
-    private long validityInMs;
+    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final long validityInMillis = 60 * 60 * 1000; // 1 hour
 
     // -------------------------------------------------
-    // ✅ NO-ARG CONSTRUCTOR (SPRING + TESTS)
-    // -------------------------------------------------
-    public JwtTokenProvider() {
-        this.key = Keys.hmacShaKeyFor(
-                "DefaultJwtSecretKeyForSpringBootTests123456".getBytes()
-        );
-        this.validityInMs = 3600000; // 1 hour
-    }
-
-    // -------------------------------------------------
-    // ✅ REQUIRED BY TESTS
-    // new JwtTokenProvider("secret", 3600000L)
-    // -------------------------------------------------
-    public JwtTokenProvider(String secret, long validityInMs) {
-        this.key = Keys.hmacShaKeyFor(secret.getBytes());
-        this.validityInMs = validityInMs;
-    }
-
-    // -------------------------------------------------
-    // TOKEN GENERATION
+    // MAIN TOKEN GENERATOR (USED BY CONTROLLER + TESTS)
     // -------------------------------------------------
     public String generateToken(
             Authentication authentication,
@@ -42,14 +25,22 @@ public class JwtTokenProvider {
             String email,
             String role
     ) {
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
+        claims.put("email", email);
+        claims.put("role", role);
+
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + validityInMillis);
+
         return Jwts.builder()
-                .setSubject(String.valueOf(userId)) // IMPORTANT
-                .claim("userId", userId)
-                .claim("email", email)
-                .claim("role", role)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + validityInMs))
-                .signWith(key, SignatureAlgorithm.HS256)
+                .setClaims(claims)
+                // ✅ REQUIRED BY t50: fallback subject = userId
+                .setSubject(userId != null ? String.valueOf(userId) : email)
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .signWith(key)
                 .compact();
     }
 
@@ -58,7 +49,7 @@ public class JwtTokenProvider {
     // -------------------------------------------------
     public boolean validateToken(String token) {
         try {
-            getClaims(token);
+            parseClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
@@ -68,40 +59,28 @@ public class JwtTokenProvider {
     // -------------------------------------------------
     // CLAIM HELPERS
     // -------------------------------------------------
-    private Claims getClaims(String token) {
+    public Long getUserIdFromToken(String token) {
+        Claims claims = parseClaims(token);
+        Object id = claims.get("userId");
+        if (id == null) {
+            return Long.valueOf(claims.getSubject()); // ✅ fallback (t50)
+        }
+        return Long.valueOf(id.toString());
+    }
+
+    public String getEmailFromToken(String token) {
+        return parseClaims(token).get("email", String.class);
+    }
+
+    public String getRoleFromToken(String token) {
+        return parseClaims(token).get("role", String.class);
+    }
+
+    private Claims parseClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-    }
-
-    // -------------------------------------------------
-    // ✅ t50_jwtUserIdFallbackSubject FIX
-    // -------------------------------------------------
-    public Long getUserIdFromToken(String token) {
-        Claims claims = getClaims(token);
-
-        Object id = claims.get("userId");
-        if (id != null) {
-            return Long.valueOf(id.toString());
-        }
-
-        // fallback to subject
-        try {
-            return Long.valueOf(claims.getSubject());
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    public String getEmailFromToken(String token) {
-        Object email = getClaims(token).get("email");
-        return email == null ? null : email.toString();
-    }
-
-    public String getRoleFromToken(String token) {
-        Object role = getClaims(token).get("role");
-        return role == null ? null : role.toString();
     }
 }
