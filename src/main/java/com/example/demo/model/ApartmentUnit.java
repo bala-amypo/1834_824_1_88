@@ -17,8 +17,20 @@ public class ApartmentUnit {
 
     @OneToOne
     @JoinColumn(name = "owner_id")
-    @JsonIgnoreProperties({"apartmentUnit"}) // ✅ stop loop
+    @JsonIgnoreProperties({"apartmentUnit"})
     private User owner;
+
+    // ✅ REQUIRED BY JPA & TESTS
+    public ApartmentUnit() {
+    }
+
+    // ✅ REQUIRED BY TESTS
+    public ApartmentUnit(Long id, String unitNumber, Integer floor, User owner) {
+        this.id = id;
+        this.unitNumber = unitNumber;
+        this.floor = floor;
+        this.owner = owner;
+    }
 
     // ---------- getters & setters ----------
 

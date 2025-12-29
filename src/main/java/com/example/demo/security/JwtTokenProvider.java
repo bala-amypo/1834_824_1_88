@@ -15,27 +15,44 @@ import java.util.List;
 @Component
 public class JwtTokenProvider {
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private static final long EXPIRATION = 1000 * 60 * 60; // 1 hour
+    private Key key;
+    private long expiration;
 
-    // -------------------------------------------------
-    // TOKEN GENERATION
-    // -------------------------------------------------
+    // ✅ REQUIRED BY SPRING
+    public JwtTokenProvider() {
+        this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        this.expiration = 1000 * 60 * 60; // 1 hour
+    }
+
+    // ✅ REQUIRED BY TESTS
+    public JwtTokenProvider(String secret, long expiration) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+        this.expiration = expiration;
+    }
+
+    // ✅ USED BY APPLICATION
     public String generateToken(Long userId, String email, String role) {
         return Jwts.builder()
-                .setSubject(String.valueOf(userId))          // ✅ subject = userId
-                .claim("userId", userId)                     // ✅ explicit userId
+                .setSubject(String.valueOf(userId))
+                .claim("userId", userId)
                 .claim("email", email)
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(key)
                 .compact();
     }
 
-    // -------------------------------------------------
-    // VALIDATION
-    // -------------------------------------------------
+    // ✅ REQUIRED BY TESTS
+    public String generateToken(
+            Authentication auth,
+            long userId,
+            String email,
+            String role
+    ) {
+        return generateToken(userId, email, role);
+    }
+
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
@@ -48,37 +65,28 @@ public class JwtTokenProvider {
         }
     }
 
-    // -------------------------------------------------
-    // AUTHENTICATION (USED BY FILTER)
-    // -------------------------------------------------
     public Authentication getAuthentication(String token) {
         Claims claims = getClaims(token);
 
-        String role = getRoleFromToken(token);
-
+        String role = claims.get("role", String.class);
         List<SimpleGrantedAuthority> authorities =
                 Collections.singletonList(new SimpleGrantedAuthority(role));
 
         return new UsernamePasswordAuthenticationToken(
-                claims.getSubject(),   // principal
+                claims.getSubject(),
                 null,
                 authorities
         );
     }
 
-    // -------------------------------------------------
-    // CLAIM HELPERS (REQUIRED BY FILTER & TESTS)
-    // -------------------------------------------------
+    // ✅ REQUIRED BY TESTS
     public Long getUserIdFromToken(String token) {
         Claims claims = getClaims(token);
-
         Long userId = claims.get("userId", Long.class);
 
-        // ✅ fallback to subject if claim missing
         if (userId == null) {
             return Long.parseLong(claims.getSubject());
         }
-
         return userId;
     }
 
@@ -90,9 +98,6 @@ public class JwtTokenProvider {
         return getClaims(token).get("role", String.class);
     }
 
-    // -------------------------------------------------
-    // INTERNAL
-    // -------------------------------------------------
     private Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)

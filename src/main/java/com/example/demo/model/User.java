@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@Table(name = "users")
 public class User {
 
     @Id
@@ -15,19 +14,32 @@ public class User {
 
     private String name;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String email;
 
-    @JsonIgnore // ✅ NEVER expose password in API responses
+    @JsonIgnore
     private String password;
 
     private String role = "RESIDENT";
 
     @OneToOne(mappedBy = "owner")
-    @JsonIgnore // ✅ prevent infinite recursion
+    @JsonIgnore
     private ApartmentUnit apartmentUnit;
 
-    // ---------------- GETTERS & SETTERS ----------------
+    // ✅ REQUIRED BY JPA & TESTS
+    public User() {
+    }
+
+    // ✅ REQUIRED BY TESTS
+    public User(Long id, String name, String email, String password, String role) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
+
+    // ---------- getters & setters ----------
 
     public Long getId() {
         return id;
