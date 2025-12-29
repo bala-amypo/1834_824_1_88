@@ -1,52 +1,95 @@
-package com.example.demo.dto;
+package com.example.demo.controller;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.example.demo.dto.LoginRequest;
+import com.example.demo.dto.RegisterRequest;
+import com.example.demo.model.User;
+import com.example.demo.repository.UserRepository;
+import com.example.demo.security.JwtTokenProvider;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
-public class RegisterRequest {
+import java.util.HashMap;
+import java.util.Map;
 
-    @Schema(example = "Sharan")
-    private String name;
+@RestController
+@RequestMapping("/auth")
+public class AuthController {
 
-    @Schema(example = "sharan2007@gmail.com")
-    private String email;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    @Schema(example = "sharan96")
-    private String password;
-
-    @Schema(example = "ADMIN")
-    private String role;
-
-    public RegisterRequest() {}
-
-    public String getName() {
-        return name;
+    public AuthController(UserRepository userRepository,
+                          PasswordEncoder passwordEncoder,
+                          JwtTokenProvider jwtTokenProvider) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    // =================================================
+    // REGISTER
+    // =================================================
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+
+        // Check duplicate email
+        if (userRepository.existsByEmail(request.getEmail())) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Email already exists");
+        }
+
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        // Default role
+        if (request.getRole() == null || request.getRole().isBlank()) {
+            user.setRole("RESIDENT");
+        } else {
+            user.setRole(request.getRole());
+        }
+
+        User saved = userRepository.save(user);
+
+        return ResponseEntity.ok(saved);
     }
 
-    public String getEmail() {
-        return email;
-    }
+    // =================================================
+    // LOGIN
+    // =================================================
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
 
-    public String getPassword() {
-        return password;
-    }
- 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+        if (!passwordEncoder.matches(
+                request.getPassword(),
+                user.getPassword())) {
 
-    public String getRole() {
-        return role;
-    }
- 
-    public void setRole(String role) {
-        this.role = role;
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid credentials");
+        }
+
+        String token = jwtTokenProvider.generateToken(
+                user.getId(),
+                user.getEmail(),
+                user.getRole()
+        );
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", token);
+        response.put("userId", user.getId());
+        response.put("email", user.getEmail());
+        response.put("role", user.getRole());
+
+        return ResponseEntity.ok(response);
     }
 }

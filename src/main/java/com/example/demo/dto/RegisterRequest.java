@@ -1,19 +1,10 @@
 package com.example.demo.dto;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
 public class RegisterRequest {
 
-    @Schema(example = "Sharan")
     private String name;
-
-    @Schema(example = "sharan2007@gmail.com")
     private String email;
-
-    @Schema(example = "sharan96")
     private String password;
-
-    @Schema(example = "ADMIN")
     private String role;
 
     public RegisterRequest() {}
@@ -29,11 +20,11 @@ public class RegisterRequest {
     public String getEmail() {
         return email;
     }
-
+ 
     public void setEmail(String email) {
         this.email = email;
     }
-
+ 
     public String getPassword() {
         return password;
     }
