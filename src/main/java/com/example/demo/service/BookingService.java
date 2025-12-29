@@ -1,15 +1,16 @@
 package com.example.demo.service;
 
 import com.example.demo.model.Booking;
+
 import java.util.List;
 
 public interface BookingService {
 
     Booking createBooking(Long facilityId, Long userId, Booking booking);
 
-    Booking cancelBooking(Long id);
+    Booking cancelBooking(Long bookingId);
 
-    Booking getBooking(Long id);
+    Booking getBooking(Long bookingId);
 
-    List<Booking> getAll();   // <-- THIS was missing
+    List<Booking> getAll();
 }
