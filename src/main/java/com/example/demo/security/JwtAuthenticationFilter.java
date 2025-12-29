@@ -4,6 +4,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -16,11 +18,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.tokenProvider = tokenProvider;
     }
 
+    // 🔴 CRITICAL: Skip auth endpoints
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-
         String path = request.getServletPath();
-
         return path.startsWith("/auth")
                 || path.startsWith("/swagger")
                 || path.startsWith("/v3/api-docs");
@@ -35,16 +36,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String header = request.getHeader("Authorization");
 
-        if (header == null || !header.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+        if (header != null && header.startsWith("Bearer ")) {
+            String token = header.substring(7);
 
-        String token = header.substring(7);
-
-        if (!tokenProvider.validateToken(token)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
+            if (tokenProvider.validateToken(token)) {
+                Authentication auth = tokenProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
         }
 
         filterChain.doFilter(request, response);
