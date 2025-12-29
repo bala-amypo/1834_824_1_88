@@ -29,14 +29,21 @@ public class SecurityConfig {
                 sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-                // ✅ AUTH APIs
-                .requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login").permitAll()
+
+                // ✅ CORS preflight (THIS FIXES 403)
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                // ✅ Auth endpoints
+                .requestMatchers(HttpMethod.POST,
+                        "/auth/register",
+                        "/auth/login"
+                ).permitAll()
 
                 // ✅ Swagger
                 .requestMatchers(
-                    "/swagger-ui/**",
-                    "/swagger-ui.html",
-                    "/v3/api-docs/**"
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**"
                 ).permitAll()
 
                 // 🔒 Everything else secured
