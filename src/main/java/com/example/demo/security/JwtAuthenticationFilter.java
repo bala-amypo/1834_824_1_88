@@ -10,7 +10,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collections;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -18,6 +17,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     public JwtAuthenticationFilter(JwtTokenProvider tokenProvider) {
         this.tokenProvider = tokenProvider;
+    }
+
+    // ✅ THIS IS THE KEY FIX
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return path.startsWith("/auth/")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs");
     }
 
     @Override
@@ -33,13 +41,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = header.substring(7);
 
             if (tokenProvider.validateToken(token)) {
-                Long userId = tokenProvider.getUserId(token);
+                Long userId = tokenProvider.getUserIdFromToken(token);
+                String role = tokenProvider.getRoleFromToken(token);
 
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
                                 userId,
                                 null,
-                                Collections.emptyList()
+                                tokenProvider.getAuthorities(role)
                         );
 
                 auth.setDetails(
