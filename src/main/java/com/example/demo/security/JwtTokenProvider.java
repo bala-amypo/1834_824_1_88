@@ -11,22 +11,23 @@ import java.util.Date;
 public class JwtTokenProvider {
 
     private final Key key = Keys.hmacShaKeyFor(
-            "VerySecretKeyForJwtDemoProject123456".getBytes()
+            "VerySecretKeyForApartmentBookingJWT123456".getBytes()
     );
+
+    private final long EXPIRATION = 3600000; // 1 hour
 
     public String generateToken(String email) {
 
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(
-                        new Date(System.currentTimeMillis() + 3600000)
-                )
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public String getEmailFromToken(String token) {
+
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
@@ -38,9 +39,9 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token);
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token);
             return true;
         } catch (Exception e) {
             return false;
