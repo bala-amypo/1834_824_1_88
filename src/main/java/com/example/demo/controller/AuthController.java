@@ -1,84 +1,52 @@
-package com.example.demo.controller;
+package com.example.demo.dto;
 
-import com.example.demo.model.User;
-import com.example.demo.repository.UserRepository;
-import com.example.demo.security.JwtTokenProvider;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-import java.util.HashMap;
-import java.util.Map;
+public class RegisterRequest {
 
-@RestController
-@RequestMapping("/auth")
-public class AuthController {
+    @Schema(example = "Sharan")
+    private String name;
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtTokenProvider jwtTokenProvider;
+    @Schema(example = "sharan2007@gmail.com")
+    private String email;
 
-    public AuthController(
-            UserRepository userRepository,
-            PasswordEncoder passwordEncoder,
-            JwtTokenProvider jwtTokenProvider
-    ) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
+    @Schema(example = "sharan96")
+    private String password;
+
+    @Schema(example = "ADMIN")
+    private String role;
+
+    public RegisterRequest() {}
+
+    public String getName() {
+        return name;
     }
 
-    // -------------------------------------------------
-    // REGISTER
-    // -------------------------------------------------
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
-
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("Email already exists");
-        }
-
-        if (user.getRole() == null || user.getRole().isBlank()) {
-            user.setRole("RESIDENT");
-        }
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        User saved = userRepository.save(user);
-
-        return ResponseEntity.ok(saved);
+    public void setName(String name) {
+        this.name = name;
     }
 
-    // -------------------------------------------------
-    // LOGIN
-    // -------------------------------------------------
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
+    public String getEmail() {
+        return email;
+    }
 
-        String email = request.get("email");
-        String password = request.get("password");
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public String getPassword() {
+        return password;
+    }
+ 
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-        }
-
-        String token = jwtTokenProvider.generateToken(
-                user.getId(),
-                user.getEmail(),
-                user.getRole()
-        );
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("token", token);
-        response.put("userId", user.getId());
-        response.put("email", user.getEmail());
-        response.put("role", user.getRole());
-
-        return ResponseEntity.ok(response);
+    public String getRole() {
+        return role;
+    }
+ 
+    public void setRole(String role) {
+        this.role = role;
     }
 }
