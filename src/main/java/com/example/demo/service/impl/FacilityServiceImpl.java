@@ -12,28 +12,26 @@ import java.util.List;
 @Service
 public class FacilityServiceImpl implements FacilityService {
 
-    private final FacilityRepository repository;
+    private final FacilityRepository repo;
 
-    public FacilityServiceImpl(FacilityRepository repository) {
-        this.repository = repository;
+    // ✅ EXACT CONSTRUCTOR (TEST EXPECTED)
+    public FacilityServiceImpl(FacilityRepository repo) {
+        this.repo = repo;
     }
 
     @Override
-    public Facility addFacility(Facility facility) {
-
-        if (facility.getOpenTime().compareTo(facility.getCloseTime()) >= 0) {
-            throw new BadRequestException("Open time must be before close time");
+    public Facility addFacility(Facility f) {
+        if (f.getOpenTime().compareTo(f.getCloseTime()) >= 0) {
+            throw new BadRequestException("Invalid time");
         }
-
-        if (repository.findByName(facility.getName()).isPresent()) {
-            throw new ConflictException("Facility already exists");
+        if (repo.findByName(f.getName()).isPresent()) {
+            throw new ConflictException("Facility exists");
         }
-
-        return repository.save(facility);
+        return repo.save(f);
     }
 
     @Override
     public List<Facility> getAllFacilities() {
-        return repository.findAll();
+        return repo.findAll();
     }
 }

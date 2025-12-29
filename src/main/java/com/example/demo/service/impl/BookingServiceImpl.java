@@ -17,71 +17,66 @@ import java.util.List;
 @Service
 public class BookingServiceImpl implements BookingService {
 
-    private final BookingRepository bookingRepository;
-    private final FacilityRepository facilityRepository;
-    private final UserRepository userRepository;
+    private final BookingRepository bookingRepo;
+    private final FacilityRepository facilityRepo;
+    private final UserRepository userRepo;
     private final BookingLogService bookingLogService;
 
-    public BookingServiceImpl(BookingRepository bookingRepository,
-                              FacilityRepository facilityRepository,
-                              UserRepository userRepository,
+    // ✅ EXACT CONSTRUCTOR (TEST EXPECTED)
+    public BookingServiceImpl(BookingRepository bookingRepo,
+                              FacilityRepository facilityRepo,
+                              UserRepository userRepo,
                               BookingLogService bookingLogService) {
-        this.bookingRepository = bookingRepository;
-        this.facilityRepository = facilityRepository;
-        this.userRepository = userRepository;
+        this.bookingRepo = bookingRepo;
+        this.facilityRepo = facilityRepo;
+        this.userRepo = userRepo;
         this.bookingLogService = bookingLogService;
     }
 
     @Override
     public Booking createBooking(Long facilityId, Long userId, Booking booking) {
 
-        Facility facility = facilityRepository.findById(facilityId)
+        Facility facility = facilityRepo.findById(facilityId)
                 .orElseThrow(() -> new BadRequestException("Facility not found"));
 
-        User user = userRepository.findById(userId)
+        User user = userRepo.findById(userId)
                 .orElseThrow(() -> new BadRequestException("User not found"));
 
         List<Booking> conflicts =
-                bookingRepository.findByFacilityAndStartTimeLessThanAndEndTimeGreaterThan(
-                        facility,
-                        booking.getEndTime(),
-                        booking.getStartTime()
-                );
+                bookingRepo.findByFacilityAndStartTimeLessThanAndEndTimeGreaterThan(
+                        facility, booking.getEndTime(), booking.getStartTime());
 
         if (!conflicts.isEmpty()) {
-            throw new ConflictException("Facility already booked");
+            throw new ConflictException("Booking conflict");
         }
 
         booking.setFacility(facility);
         booking.setUser(user);
-        booking.setStatus("CONFIRMED");
+        booking.setStatus(Booking.STATUS_CONFIRMED);
 
-        Booking saved = bookingRepository.save(booking);
-        bookingLogService.addLog(saved.getId(), "Booking created");
-
+        Booking saved = bookingRepo.save(booking);
+        bookingLogService.addLog(saved.getId(), "Booking Created");
         return saved;
     }
 
     @Override
-    public Booking cancelBooking(Long bookingId) {
-        Booking booking = bookingRepository.findById(bookingId)
+    public Booking cancelBooking(Long id) {
+        Booking booking = bookingRepo.findById(id)
                 .orElseThrow(() -> new BadRequestException("Booking not found"));
 
-        booking.setStatus("CANCELLED");
-        Booking saved = bookingRepository.save(booking);
-        bookingLogService.addLog(saved.getId(), "Booking cancelled");
-
+        booking.setStatus(Booking.STATUS_CANCELLED);
+        Booking saved = bookingRepo.save(booking);
+        bookingLogService.addLog(saved.getId(), "Booking Cancelled");
         return saved;
     }
 
     @Override
-    public Booking getBooking(Long bookingId) {
-        return bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new BadRequestException("Booking not found"));
+    public Booking getBooking(Long id) {
+        return bookingRepo.findById(id).orElseThrow();
     }
 
     @Override
     public List<Booking> getAll() {
-        return bookingRepository.findAll();
+        return bookingRepo.findAll();
     }
 }

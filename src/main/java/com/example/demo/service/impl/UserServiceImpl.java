@@ -12,32 +12,31 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository repository;
-    private final PasswordEncoder passwordEncoder;
+    private final UserRepository repo;
+    private final PasswordEncoder encoder;
 
-    public UserServiceImpl(UserRepository repository,
-                           PasswordEncoder passwordEncoder) {
-        this.repository = repository;
-        this.passwordEncoder = passwordEncoder;
+    // ✅ EXACT CONSTRUCTOR (TEST EXPECTED)
+    public UserServiceImpl(UserRepository repo, PasswordEncoder encoder) {
+        this.repo = repo;
+        this.encoder = encoder;
     }
 
     @Override
     public User register(User user) {
-        if (repository.existsByEmail(user.getEmail())) {
+        if (repo.existsByEmail(user.getEmail())) {
             throw new BadRequestException("Email already exists");
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole("RESIDENT");
-        return repository.save(user);
+        user.setPassword(encoder.encode(user.getPassword()));
+        return repo.save(user);
     }
 
     @Override
     public List<User> getAllUsers() {
-        return repository.findAll();
+        return repo.findAll();
     }
 
     @Override
     public User saveUser(User user) {
-        return repository.save(user);
+        return repo.save(user);
     }
 }

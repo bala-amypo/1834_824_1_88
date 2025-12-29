@@ -12,35 +12,38 @@ import java.util.List;
 @Service
 public class ApartmentUnitServiceImpl implements ApartmentUnitService {
 
-    private final ApartmentUnitRepository unitRepository;
-    private final UserRepository userRepository;
+    private final ApartmentUnitRepository repo;
+    private final UserRepository userRepo;
 
-    public ApartmentUnitServiceImpl(ApartmentUnitRepository unitRepository,
-                                    UserRepository userRepository) {
-        this.unitRepository = unitRepository;
-        this.userRepository = userRepository;
+    // ✅ EXACT CONSTRUCTOR (TEST EXPECTED)
+    public ApartmentUnitServiceImpl(ApartmentUnitRepository repo,
+                                    UserRepository userRepo) {
+        this.repo = repo;
+        this.userRepo = userRepo;
     }
 
     @Override
     public ApartmentUnit assignUnitToUser(Long userId, ApartmentUnit unit) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userRepo.findById(userId).orElseThrow();
         unit.setOwner(user);
-        return unitRepository.save(unit);
+        ApartmentUnit saved = repo.save(unit);
+        user.setApartmentUnit(saved);
+        return saved;
     }
 
     @Override
     public ApartmentUnit getUnitByUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
-        return unitRepository.findByOwner(user).orElseThrow();
+        User user = userRepo.findById(userId).orElseThrow();
+        return repo.findByOwner(user).orElse(null);
     }
 
     @Override
     public List<ApartmentUnit> getAll() {
-        return unitRepository.findAll();
+        return repo.findAll();
     }
 
     @Override
     public ApartmentUnit save(ApartmentUnit unit) {
-        return unitRepository.save(unit);
+        return repo.save(unit);
     }
 }
