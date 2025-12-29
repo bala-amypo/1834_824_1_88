@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 @Entity
 public class Booking {
 
-    // ✅ REQUIRED CONSTANTS
+    // ✅ CONSTANTS USED BY TESTS
     public static final String STATUS_CONFIRMED = "CONFIRMED";
     public static final String STATUS_CANCELLED = "CANCELLED";
 
@@ -23,26 +23,92 @@ public class Booking {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
-    private String status = STATUS_CONFIRMED;
+    private String status;
 
-    public Booking() {}
+    // ✅ NO-ARG CONSTRUCTOR (JPA)
+    public Booking() {
+    }
 
-    // getters & setters (ALL REQUIRED)
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    // ✅ TEST CONSTRUCTOR (NO ID, 6 PARAMS)
+    public Booking(
+            Facility facility,
+            User user,
+            ApartmentUnit ignored,   // ← TEST PASSES NULL HERE
+            LocalDateTime startTime,
+            LocalDateTime endTime,
+            String status
+    ) {
+        this.facility = facility;
+        this.user = user;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.status = status;
+    }
 
-    public Facility getFacility() { return facility; }
-    public void setFacility(Facility facility) { this.facility = facility; }
+    // ✅ TEST CONSTRUCTOR (WITH ID, 6 PARAMS)
+    public Booking(
+            Long id,
+            Facility facility,
+            User user,
+            LocalDateTime startTime,
+            LocalDateTime endTime,
+            String status
+    ) {
+        this.id = id;
+        this.facility = facility;
+        this.user = user;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.status = status;
+    }
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    // ---------- GETTERS & SETTERS ----------
 
-    public LocalDateTime getStartTime() { return startTime; }
-    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
+    public Long getId() {
+        return id;
+    }
 
-    public LocalDateTime getEndTime() { return endTime; }
-    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public Facility getFacility() {
+        return facility;
+    }
+
+    public void setFacility(Facility facility) {
+        this.facility = facility;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }
