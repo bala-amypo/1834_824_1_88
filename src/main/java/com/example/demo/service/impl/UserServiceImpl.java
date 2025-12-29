@@ -21,6 +21,7 @@ public class UserServiceImpl implements UserService {
         this.encoder = encoder;
     }
 
+    // ✅ REGISTER USER
     @Override
     public User register(User user) {
         if (repo.existsByEmail(user.getEmail())) {
@@ -30,11 +31,20 @@ public class UserServiceImpl implements UserService {
         return repo.save(user);
     }
 
+    // ✅ REQUIRED BY AUTH CONTROLLER & TEST
+    @Override
+    public User findByEmail(String email) {
+        return repo.findByEmail(email)
+                .orElseThrow(() -> new BadRequestException("User not found"));
+    }
+
+    // ✅ REQUIRED BY TEST
     @Override
     public List<User> getAllUsers() {
         return repo.findAll();
     }
 
+    // ✅ REQUIRED BY TEST
     @Override
     public User saveUser(User user) {
         return repo.save(user);

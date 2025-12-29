@@ -29,7 +29,7 @@ public class AuthController {
         this.userService = userService;
     }
 
-    // ✅ POST /auth/register
+    // ✅ REGISTER
     @PostMapping("/register")
     public User register(@RequestBody RegisterRequest request) {
 
@@ -37,14 +37,16 @@ public class AuthController {
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
+        user.setRole("RESIDENT");
 
         return userService.register(user);
     }
 
-    // ✅ POST /auth/login
+    // ✅ LOGIN (FIXED)
     @PostMapping("/login")
     public LoginResponse login(@RequestBody LoginRequest request) {
 
+        // 1️⃣ Authenticate user
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -52,7 +54,16 @@ public class AuthController {
                 )
         );
 
-        String token = jwtTokenProvider.generateToken(request.getEmail());
+        // 2️⃣ Load user from DB
+        User user = userService.findByEmail(request.getEmail());
+
+        // 3️⃣ Generate token (TEST-COMPATIBLE)
+        String token = jwtTokenProvider.generateToken(
+                authentication,
+                user.getId(),
+                user.getEmail(),
+                user.getRole()
+        );
 
         return new LoginResponse(token);
     }
