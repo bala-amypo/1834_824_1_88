@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -31,53 +30,43 @@ public class AuthController {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    // -------------------------------------------------
-    // REGISTER
-    // -------------------------------------------------
+    // ---------------- REGISTER ----------------
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
 
-        // ✅ Duplicate email check (t10)
-        Optional<User> existing = userRepository.findByEmail(user.getEmail());
-        if (existing.isPresent()) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Email already exists");
         }
 
-        // ✅ Default role (t25)
         if (user.getRole() == null || user.getRole().isBlank()) {
             user.setRole("RESIDENT");
         }
 
-        // ✅ Encode password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        User savedUser = userRepository.save(user);
-        return ResponseEntity.ok(savedUser);
+        return ResponseEntity.ok(userRepository.save(user));
     }
 
-    // -------------------------------------------------
-    // LOGIN
-    // -------------------------------------------------
+    // ---------------- LOGIN ----------------
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
 
-        String email = request.get("email");
-        String password = request.get("password");
-
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(request.get("email"))
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // ✅ Password validation
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid credentials");
+        if (!passwordEncoder.matches(request.get("password"), user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
 
-        // ✅ JWT generation (tests rely on this)
-        String token = jwtTokenProvider.generateToken(user);
+        // ✅ CORRECT TOKEN GENERATION
+        String token = jwtTokenProvider.generateToken(
+                null,
+                user.getId(),
+                user.getEmail(),
+                user.getRole()
+        );
 
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);

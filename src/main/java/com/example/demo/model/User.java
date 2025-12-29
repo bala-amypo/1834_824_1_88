@@ -12,31 +12,31 @@ public class User {
 
     private String name;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String email;
 
     private String password;
 
-    // ✅ Avoid ROLE_ prefix (tests expect plain role)
-    private String role = "RESIDENT";
+    private String role;
 
-    // ---------- Constructors ----------
+    // ✅ REQUIRED BY TESTS (One-to-One)
+    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
+    private ApartmentUnit apartmentUnit;
+
+    // ---------------- CONSTRUCTORS ----------------
 
     public User() {
-        this.role = "RESIDENT"; // ✅ DEFAULT ROLE
+        this.role = "RESIDENT"; // ✅ t25_userDefaultRole
     }
 
-    public User(String name, String email, String password) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.role = "RESIDENT"; // ✅ DEFAULT ROLE
-    }
-
-    // ---------- Getters & Setters ----------
+    // ---------------- GETTERS & SETTERS ----------------
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -45,10 +45,6 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getEmail() {
@@ -62,7 +58,7 @@ public class User {
     public String getPassword() {
         return password;
     }
- 
+
     public void setPassword(String password) {
         this.password = password;
     }
@@ -73,5 +69,14 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public ApartmentUnit getApartmentUnit() {
+        return apartmentUnit;
+    }
+
+    // ✅ THIS FIXES YOUR COMPILATION ERROR
+    public void setApartmentUnit(ApartmentUnit apartmentUnit) {
+        this.apartmentUnit = apartmentUnit;
     }
 }

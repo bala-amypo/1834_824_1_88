@@ -1,6 +1,5 @@
 package com.example.demo.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -12,50 +11,27 @@ public class ApartmentUnit {
 
     private String unitNumber;
 
-    private Integer floor;
-
-    // ✅ Back reference to prevent infinite JSON loop
-    @OneToOne
-    @JoinColumn(name = "owner_id")
-    @JsonBackReference
+    @OneToOne(mappedBy = "apartmentUnit")
     private User owner;
 
-    // ---------- CONSTRUCTORS ----------
-
-    public ApartmentUnit() {
-    }
-
-    public ApartmentUnit(Long id, String unitNumber, Integer floor, User owner) {
-        this.id = id;
-        this.unitNumber = unitNumber;
-        this.floor = floor;
-        this.owner = owner;
-    }
-
-    // ---------- GETTERS & SETTERS ----------
+    // -------------------
+    // GETTERS & SETTERS
+    // -------------------
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getUnitNumber() {
         return unitNumber;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public void setUnitNumber(String unitNumber) {
         this.unitNumber = unitNumber;
-    }
-
-    public Integer getFloor() {
-        return floor;
-    }
-
-    public void setFloor(Integer floor) {
-        this.floor = floor;
     }
 
     public User getOwner() {
