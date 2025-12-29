@@ -1,10 +1,6 @@
 package com.example.demo.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
 
 @Entity
 public class Facility {
@@ -17,12 +13,14 @@ public class Facility {
     private String name;
 
     private String description;
+
     private String openTime;
     private String closeTime;
 
     public Facility() {}
 
-    public Facility(Long id, String name, String description, String openTime, String closeTime) {
+    public Facility(Long id, String name, String description,
+                    String openTime, String closeTime) {
         this.id = id;
         this.name = name;
         this.description = description;

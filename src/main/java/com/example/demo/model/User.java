@@ -1,12 +1,6 @@
 package com.example.demo.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Column;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "users")
@@ -23,13 +17,9 @@ public class User {
 
     private String password;
 
-    private String role;
+    private String role; // RESIDENT / ADMIN
 
-    @OneToOne(mappedBy = "owner")
-    private ApartmentUnit apartmentUnit;
-
-    public User() {
-    }
+    public User() {}
 
     public User(Long id, String name, String email, String password, String role) {
         this.id = id;
@@ -53,7 +43,4 @@ public class User {
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
-
-    public ApartmentUnit getApartmentUnit() { return apartmentUnit; }
-    public void setApartmentUnit(ApartmentUnit apartmentUnit) { this.apartmentUnit = apartmentUnit; }
 }

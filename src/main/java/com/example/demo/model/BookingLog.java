@@ -11,7 +11,6 @@ public class BookingLog {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "booking_id")
     private Booking booking;
 
     private String logMessage;
@@ -29,42 +28,18 @@ public class BookingLog {
 
     @PrePersist
     public void onCreate() {
-        this.loggedAt = LocalDateTime.now();
+        loggedAt = LocalDateTime.now();
     }
 
-    // ---------------- GETTERS ----------------
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Long getId() {
-        return id;
-    }
+    public Booking getBooking() { return booking; }
+    public void setBooking(Booking booking) { this.booking = booking; }
 
-    public Booking getBooking() {
-        return booking;
-    }
+    public String getLogMessage() { return logMessage; }
+    public void setLogMessage(String logMessage) { this.logMessage = logMessage; }
 
-    public String getLogMessage() {
-        return logMessage;
-    }
-
-    public LocalDateTime getLoggedAt() {
-        return loggedAt;
-    }
-
-    // ---------------- SETTERS ----------------
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setBooking(Booking booking) {
-        this.booking = booking;
-    }
-
-    public void setLogMessage(String logMessage) {
-        this.logMessage = logMessage;
-    }
-
-    public void setLoggedAt(LocalDateTime loggedAt) {
-        this.loggedAt = loggedAt;
-    }
+    public LocalDateTime getLoggedAt() { return loggedAt; }
+    public void setLoggedAt(LocalDateTime loggedAt) { this.loggedAt = loggedAt; }
 }
