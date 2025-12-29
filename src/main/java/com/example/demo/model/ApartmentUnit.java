@@ -11,20 +11,19 @@ public class ApartmentUnit {
 
     private String unitNumber;
 
-    // ✅ mappedBy MUST match User.apartmentUnit
-    @OneToOne(mappedBy = "apartmentUnit")
+    private String floor;
+
+    // 🔗 Each apartment unit has exactly one owner
+    @OneToOne
+    @JoinColumn(name = "owner_id")
     private User owner;
 
-    // ---------------- CONSTRUCTORS ----------------
+    // ---------- CONSTRUCTORS ----------
 
     public ApartmentUnit() {
     }
 
-    public ApartmentUnit(String unitNumber) {
-        this.unitNumber = unitNumber;
-    }
-
-    // ---------------- GETTERS & SETTERS ----------------
+    // ---------- GETTERS & SETTERS ----------
 
     public Long getId() {
         return id;
@@ -40,6 +39,14 @@ public class ApartmentUnit {
 
     public void setUnitNumber(String unitNumber) {
         this.unitNumber = unitNumber;
+    }
+
+    public String getFloor() {
+        return floor;
+    }
+
+    public void setFloor(String floor) {
+        this.floor = floor;
     }
 
     public User getOwner() {

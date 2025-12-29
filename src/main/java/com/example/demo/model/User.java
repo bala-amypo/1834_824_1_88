@@ -3,7 +3,10 @@ package com.example.demo.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "users")
+@Table(
+    name = "users",
+    uniqueConstraints = @UniqueConstraint(columnNames = "email")
+)
 public class User {
 
     @Id
@@ -12,26 +15,25 @@ public class User {
 
     private String name;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     private String password;
 
+    // RESIDENT / ADMIN
     private String role;
 
-    // ✅ REQUIRED BY TESTS (One user → One unit)
-    @OneToOne
-    @JoinColumn(name = "apartment_unit_id")
+    // 🔗 One user owns one apartment unit
+    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
     private ApartmentUnit apartmentUnit;
 
-    // ---------------- CONSTRUCTORS ----------------
+    // ---------- CONSTRUCTORS ----------
 
     public User() {
-        // ✅ default role for tests
-        this.role = "RESIDENT";
+        this.role = "RESIDENT"; // default role
     }
 
-    // ---------------- GETTERS & SETTERS ----------------
+    // ---------- GETTERS & SETTERS ----------
 
     public Long getId() {
         return id;
@@ -77,7 +79,6 @@ public class User {
         return apartmentUnit;
     }
 
-    // ✅ THIS METHOD WAS MISSING → CAUSED ERROR
     public void setApartmentUnit(ApartmentUnit apartmentUnit) {
         this.apartmentUnit = apartmentUnit;
     }
