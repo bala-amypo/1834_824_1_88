@@ -1,193 +1,33 @@
-// // package com.example.demo.config;
-
-// // import com.example.demo.security.JwtAuthenticationFilter;
-// // import com.example.demo.security.JwtTokenProvider;
-// // import com.example.demo.security.CustomUserDetailsService;
-// // import org.springframework.context.annotation.Bean;
-// // import org.springframework.context.annotation.Configuration;
-// // import org.springframework.security.authentication.AuthenticationManager;
-// // import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-// // import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-// // import org.springframework.security.config.http.SessionCreationPolicy;
-// // import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-// // import org.springframework.security.crypto.password.PasswordEncoder;
-// // import org.springframework.security.web.SecurityFilterChain;
-// // import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-// // @Configuration
-// // public class SecurityConfig {
-
-// //     private final JwtTokenProvider jwtTokenProvider;
-// //     private final CustomUserDetailsService customUserDetailsService;
-
-// //     public SecurityConfig(JwtTokenProvider jwtTokenProvider,
-// //                           CustomUserDetailsService customUserDetailsService) {
-// //         this.jwtTokenProvider = jwtTokenProvider;
-// //         this.customUserDetailsService = customUserDetailsService;
-// //     }
-
-// //     // Authentication Manager
-// //     @Bean
-// //     public AuthenticationManager authenticationManager(
-// //             AuthenticationConfiguration configuration) throws Exception {
-// //         return configuration.getAuthenticationManager();
-// //     }
-
-// //     // Password Encoder
-// //     @Bean
-// //     public PasswordEncoder passwordEncoder() {
-// //         return new BCryptPasswordEncoder();
-// //     }
-
-// //     // JWT Filter Bean
-// //     @Bean
-// //     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-// //         return new JwtAuthenticationFilter(jwtTokenProvider, customUserDetailsService);
-// //     }
-
-// //     // Security Filter Chain
-// //     @Bean
-// //     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-// //         http
-// //             .csrf(csrf -> csrf.disable())
-// //             .sessionManagement(session ->
-// //                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-// //             )
-// //             .authorizeHttpRequests(auth -> auth
-// //                 .requestMatchers(
-// //                         "/auth/**",
-// //                         "/swagger-ui.html",
-// //                         "/swagger-ui/**",
-// //                         "/v3/api-docs/**",
-// //                         "/health"
-// //                 ).permitAll()
-// //                 .anyRequest().authenticated()
-// //             )
-// //             .httpBasic(basic -> basic.disable())
-// //             .formLogin(form -> form.disable());
-
-// //         // Add JWT filter before UsernamePasswordAuthenticationFilter
-// //         http.addFilterBefore(jwtAuthenticationFilter(),
-// //                 UsernamePasswordAuthenticationFilter.class);
-
-// //         return http.build();
-// //     }
-// // }
-
-// package com.example.demo.config;
-
-// import com.example.demo.security.JwtAuthenticationFilter;
-// import com.example.demo.security.JwtTokenProvider;
-// import com.example.demo.security.CustomUserDetailsService;
-// import org.springframework.context.annotation.Bean;
-// import org.springframework.context.annotation.Configuration;
-// import org.springframework.security.authentication.AuthenticationManager;
-// import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-// import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-// import org.springframework.security.config.http.SessionCreationPolicy;
-// import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-// import org.springframework.security.crypto.password.PasswordEncoder;
-// import org.springframework.security.web.SecurityFilterChain;
-// import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-// @Configuration
-// public class SecurityConfig {
-
-//     private final JwtTokenProvider jwtTokenProvider;
-//     private final CustomUserDetailsService customUserDetailsService;
-
-//     public SecurityConfig(JwtTokenProvider jwtTokenProvider,
-//                           CustomUserDetailsService customUserDetailsService) {
-//         this.jwtTokenProvider = jwtTokenProvider;
-//         this.customUserDetailsService = customUserDetailsService;
-//     }
-
-//     // 🔐 Authentication Manager
-//     @Bean
-//     public AuthenticationManager authenticationManager(
-//             AuthenticationConfiguration configuration) throws Exception {
-//         return configuration.getAuthenticationManager();
-//     }
-
-//     // 🔑 Password Encoder
-//     @Bean
-//     public PasswordEncoder passwordEncoder() {
-//         return new BCryptPasswordEncoder();
-//     }
-
-//     // 🔒 JWT Filter Bean
-//     @Bean
-//     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-//         return new JwtAuthenticationFilter(jwtTokenProvider, customUserDetailsService);
-//     }
-
-//     // 🛡️ Security Filter Chain
-//     @Bean
-//     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-//         http
-//             .csrf(csrf -> csrf.disable())
-
-//             .sessionManagement(session ->
-//                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//             )
-
-//             .httpBasic(httpBasic -> httpBasic.disable())
-//             .formLogin(form -> form.disable())
-
-//             .authorizeHttpRequests(auth -> auth
-//                 .requestMatchers(
-//                     "/auth/**",
-//                     "/health",
-//                     "/swagger-ui.html",
-//                     "/swagger-ui/**",
-//                     "/v3/api-docs/**"
-//                 ).permitAll()
-//                 .anyRequest().authenticated()
-//             )
-
-//             .addFilterBefore(jwtAuthenticationFilter(),
-//                     UsernamePasswordAuthenticationFilter.class);
-
-//         return http.build();
-//     }
-// }
-
 package com.example.demo.config;
 
 import com.example.demo.security.JwtAuthenticationFilter;
 import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.security.CustomUserDetailsService;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.http.HttpMethod;
-
 
 @Configuration
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final CustomUserDetailsService customUserDetailsService;
+    private final CustomUserDetailsService userDetailsService;
 
     public SecurityConfig(JwtTokenProvider jwtTokenProvider,
-                          CustomUserDetailsService customUserDetailsService) {
+                          CustomUserDetailsService userDetailsService) {
         this.jwtTokenProvider = jwtTokenProvider;
-        this.customUserDetailsService = customUserDetailsService;
+        this.userDetailsService = userDetailsService;
     }
 
     @Bean
     public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
+            AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
     @Bean
@@ -196,36 +36,23 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtTokenProvider, customUserDetailsService);
+    public JwtAuthenticationFilter jwtFilter() {
+        return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService);
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .httpBasic(httpBasic -> httpBasic.disable())
-            .formLogin(form -> form.disable())
+        http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-    .requestMatchers(
-        "/auth/**",
-        "/health",
-        "/swagger-ui.html",
-        "/swagger-ui/**",
-        "/v3/api-docs/**"
-    ).permitAll()
-
-    // 🔓 allow registration WITHOUT token
-    .requestMatchers(HttpMethod.POST, "/users").permitAll()
-
-    .anyRequest().authenticated()
-)
-
-            .addFilterBefore(jwtAuthenticationFilter(),
+                .requestMatchers(
+                        "/users",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**"
+                ).permitAll()
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtFilter(),
                     UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

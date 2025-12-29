@@ -17,9 +17,9 @@ public class BookingController {
     }
 
     @PostMapping("/{facilityId}/{userId}")
-    public Booking createBooking(@PathVariable Long facilityId,
-                                 @PathVariable Long userId,
-                                 @RequestBody Booking booking) {
+    public Booking create(@PathVariable Long facilityId,
+                          @PathVariable Long userId,
+                          @RequestBody Booking booking) {
         return service.createBooking(facilityId, userId, booking);
     }
 

@@ -1,9 +1,10 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.model.*;
-import com.example.demo.repository.*;
-import com.example.demo.service.*;
-import com.example.demo.exception.*;
+import com.example.demo.exception.BadRequestException;
+import com.example.demo.exception.ConflictException;
+import com.example.demo.model.Facility;
+import com.example.demo.repository.FacilityRepository;
+import com.example.demo.service.FacilityService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,22 +12,28 @@ import java.util.List;
 @Service
 public class FacilityServiceImpl implements FacilityService {
 
-    private final FacilityRepository repo;
-    public FacilityServiceImpl(FacilityRepository r){repo=r;}
+    private final FacilityRepository repository;
 
-    @Override
-    public Facility addFacility(Facility f){
-        if(f.getOpenTime().compareTo(f.getCloseTime())>=0)
-            throw new BadRequestException("Invalid time");
-
-        if(repo.findByName(f.getName()).isPresent())
-            throw new ConflictException("Exists");
-
-        return repo.save(f);
+    public FacilityServiceImpl(FacilityRepository repository) {
+        this.repository = repository;
     }
 
     @Override
-    public List<Facility> getAllFacilities(){
-        return repo.findAll();
+    public Facility addFacility(Facility facility) {
+
+        if (facility.getOpenTime().compareTo(facility.getCloseTime()) >= 0) {
+            throw new BadRequestException("Open time must be before close time");
+        }
+
+        if (repository.findByName(facility.getName()).isPresent()) {
+            throw new ConflictException("Facility already exists");
+        }
+
+        return repository.save(facility);
+    }
+
+    @Override
+    public List<Facility> getAllFacilities() {
+        return repository.findAll();
     }
 }

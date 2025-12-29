@@ -1,51 +1,37 @@
-// package com.example.demo.controller;
-
-// import com.example.demo.model.ApartmentUnit;
-// import com.example.demo.service.ApartmentUnitService;
-// import org.springframework.web.bind.annotation.*;
-
-// @RestController
-// @RequestMapping("/units")
-// public class ApartmentUnitController {
-
-//     private final ApartmentUnitService service;
-
-//     public ApartmentUnitController(ApartmentUnitService service) {
-//         this.service = service;
-//     }
-
-//     // Assign unit to user
-//     @PostMapping("/{userId}")
-//     public ApartmentUnit assignUnit(@PathVariable Long userId,
-//                                     @RequestBody ApartmentUnit unit) {
-//         return service.assignUnitToUser(userId, unit);
-//     }
-
-//     // Get unit by user
-//     @GetMapping("/{userId}")
-//     public ApartmentUnit getUnitByUser(@PathVariable Long userId) {
-//         return service.getUnitByUser(userId);
-//     }
-// }
 package com.example.demo.controller;
 
-import com.example.demo.model.ApartmentUnit;
-import com.example.demo.service.ApartmentUnitService;
+import com.example.demo.dto.RegisterRequest;
+import com.example.demo.model.User;
+import com.example.demo.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/units")
-public class ApartmentUnitController {
+@RequestMapping("/users")
+public class UserController {
 
-    private final ApartmentUnitService service;
+    private final UserService userService;
 
-    public ApartmentUnitController(ApartmentUnitService service) {
-        this.service = service;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
-    @PostMapping("/{userId}")
-    public ApartmentUnit assign(@PathVariable Long userId,
-                                @RequestBody ApartmentUnit unit) {
-        return service.assignUnitToUser(userId, unit);
+    // PUBLIC – Registration
+    @PostMapping
+    public User register(@RequestBody RegisterRequest request) {
+
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+
+        return userService.register(user);
+    }
+
+    // PROTECTED
+    @GetMapping
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
     }
 }
