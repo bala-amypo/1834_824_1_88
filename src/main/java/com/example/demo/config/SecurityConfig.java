@@ -23,28 +23,38 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        JwtAuthenticationFilter jwtFilter =
-                new JwtAuthenticationFilter(jwtTokenProvider);
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+            // ❌ Disable CSRF (required for REST + Swagger)
             .csrf(csrf -> csrf.disable())
+
+            // ❌ No session (JWT only)
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+
+            // ✅ Authorization rules
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                        "/auth/**",
-                        "/swagger-ui/**",
-                        "/v3/api-docs/**"
+                    "/auth/**",          // ✅ allow login/register
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+            // ✅ JWT filter
+            .addFilterBefore(
+                new JwtAuthenticationFilter(jwtTokenProvider),
+                UsernamePasswordAuthenticationFilter.class
+            );
 
         return http.build();
     }
+
+    // ------------------ Beans ------------------
 
     @Bean
     public PasswordEncoder passwordEncoder() {
