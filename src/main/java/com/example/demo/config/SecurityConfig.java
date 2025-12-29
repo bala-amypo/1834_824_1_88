@@ -209,15 +209,20 @@ public class SecurityConfig {
             .httpBasic(httpBasic -> httpBasic.disable())
             .formLogin(form -> form.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/auth/**",
-                    "/swagger-ui.html",
-                    "/swagger-ui/**",
-                    "/v3/api-docs/**",
-                    "/health"
-                ).permitAll()
-                .anyRequest().authenticated()
-            )
+    .requestMatchers(
+        "/auth/**",
+        "/health",
+        "/swagger-ui.html",
+        "/swagger-ui/**",
+        "/v3/api-docs/**"
+    ).permitAll()
+
+    // 🔓 allow registration WITHOUT token
+    .requestMatchers(HttpMethod.POST, "/users").permitAll()
+
+    .anyRequest().authenticated()
+)
+
             .addFilterBefore(jwtAuthenticationFilter(),
                     UsernamePasswordAuthenticationFilter.class);
 
