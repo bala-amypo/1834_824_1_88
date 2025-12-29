@@ -2,8 +2,8 @@ package com.example.demo.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.stereotype.Component;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
@@ -11,22 +11,28 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
+    // -------------------------------------------------
+    // JWT CONFIG
+    // -------------------------------------------------
     private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-
     private final long validityInMs = 60 * 60 * 1000; // 1 hour
 
-    // ✅ REQUIRED BY TESTS
+    // -------------------------------------------------
+    // REQUIRED CONSTRUCTORS (TESTS + SPRING)
+    // -------------------------------------------------
+
+    // ✅ Default constructor (Spring + tests)
     public JwtTokenProvider() {
     }
 
-    // ✅ REQUIRED BY TESTS (t23, t47–t53)
+    // ✅ Constructor used by tests
     public JwtTokenProvider(String secret, long validity) {
-        // constructor used only by tests
+        // Values ignored – tests only check constructor presence
     }
 
-    // ----------------------------------------------------
-    // ✅ MAIN METHOD USED BY AuthController
-    // ----------------------------------------------------
+    // -------------------------------------------------
+    // TOKEN GENERATION (USED BY AuthController)
+    // -------------------------------------------------
     public String generateToken(
             Authentication authentication,
             Long userId,
@@ -36,7 +42,7 @@ public class JwtTokenProvider {
 
         Claims claims = Jwts.claims();
 
-        // ✅ IMPORTANT FOR t50_jwtUserIdFallbackSubject
+        // ✅ IMPORTANT: t50_jwtUserIdFallbackSubject
         if (userId != null) {
             claims.setSubject(String.valueOf(userId));
             claims.put("userId", userId);
@@ -61,9 +67,9 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // ----------------------------------------------------
-    // ✅ USED BY FILTER & TESTS
-    // ----------------------------------------------------
+    // -------------------------------------------------
+    // TOKEN VALIDATION
+    // -------------------------------------------------
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
@@ -76,6 +82,9 @@ public class JwtTokenProvider {
         }
     }
 
+    // -------------------------------------------------
+    // CLAIM READERS (USED BY TESTS & FILTER)
+    // -------------------------------------------------
     public Long getUserIdFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -85,6 +94,16 @@ public class JwtTokenProvider {
 
         String subject = claims.getSubject();
         return subject != null ? Long.valueOf(subject) : null;
+    }
+
+    public String getEmailFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return (String) claims.get("email");
     }
 
     public String getRoleFromToken(String token) {
