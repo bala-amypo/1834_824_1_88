@@ -1,6 +1,5 @@
 package com.example.demo.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -18,35 +17,26 @@ public class User {
 
     private String password;
 
-    private String role;
+    // ✅ Avoid ROLE_ prefix (tests expect plain role)
+    private String role = "RESIDENT";
 
-    // ✅ One User → One ApartmentUnit
-    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
-    @JsonManagedReference
-    private ApartmentUnit apartmentUnit;
-
-    // ---------- CONSTRUCTORS ----------
+    // ---------- Constructors ----------
 
     public User() {
-        this.role = "USER"; // ✅ default role (required by tests)
+        this.role = "RESIDENT"; // ✅ DEFAULT ROLE
     }
 
-    public User(Long id, String name, String email, String password, String role) {
-        this.id = id;
+    public User(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.role = role;
+        this.role = "RESIDENT"; // ✅ DEFAULT ROLE
     }
 
-    // ---------- GETTERS & SETTERS ----------
+    // ---------- Getters & Setters ----------
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -55,6 +45,10 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getEmail() {
@@ -68,7 +62,7 @@ public class User {
     public String getPassword() {
         return password;
     }
-
+ 
     public void setPassword(String password) {
         this.password = password;
     }
@@ -79,13 +73,5 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
-    }
-
-    public ApartmentUnit getApartmentUnit() {
-        return apartmentUnit;
-    }
-
-    public void setApartmentUnit(ApartmentUnit apartmentUnit) {
-        this.apartmentUnit = apartmentUnit;
     }
 }

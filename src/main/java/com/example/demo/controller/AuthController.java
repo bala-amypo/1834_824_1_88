@@ -1,70 +1,90 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.LoginRequest;
-import com.example.demo.dto.LoginResponse;
-import com.example.demo.dto.RegisterRequest;
 import com.example.demo.model.User;
+import com.example.demo.repository.UserRepository;
 import com.example.demo.security.JwtTokenProvider;
-import com.example.demo.service.UserService;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "auth-controller")
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserService userService;
 
-    public AuthController(AuthenticationManager authenticationManager,
-                          JwtTokenProvider jwtTokenProvider,
-                          UserService userService) {
-        this.authenticationManager = authenticationManager;
+    public AuthController(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            JwtTokenProvider jwtTokenProvider
+    ) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
-        this.userService = userService;
     }
 
-    // ✅ REGISTER
+    // -------------------------------------------------
+    // REGISTER
+    // -------------------------------------------------
     @PostMapping("/register")
-    public User register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<?> register(@RequestBody User user) {
 
-        User user = new User();
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
-        user.setRole("RESIDENT");
+        // ✅ Duplicate email check (t10)
+        Optional<User> existing = userRepository.findByEmail(user.getEmail());
+        if (existing.isPresent()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Email already exists");
+        }
 
-        return userService.register(user);
+        // ✅ Default role (t25)
+        if (user.getRole() == null || user.getRole().isBlank()) {
+            user.setRole("RESIDENT");
+        }
+
+        // ✅ Encode password
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        User savedUser = userRepository.save(user);
+        return ResponseEntity.ok(savedUser);
     }
 
-    // ✅ LOGIN (FIXED)
+    // -------------------------------------------------
+    // LOGIN
+    // -------------------------------------------------
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
 
-        // 1️⃣ Authenticate user
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
+        String email = request.get("email");
+        String password = request.get("password");
 
-        // 2️⃣ Load user from DB
-        User user = userService.findByEmail(request.getEmail());
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // 3️⃣ Generate token (TEST-COMPATIBLE)
-        String token = jwtTokenProvider.generateToken(
-                authentication,
-                user.getId(),
-                user.getEmail(),
-                user.getRole()
-        );
+        // ✅ Password validation
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid credentials");
+        }
 
-        return new LoginResponse(token);
+        // ✅ JWT generation (tests rely on this)
+        String token = jwtTokenProvider.generateToken(user);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", token);
+        response.put("userId", user.getId());
+        response.put("email", user.getEmail());
+        response.put("role", user.getRole());
+
+        return ResponseEntity.ok(response);
     }
 }
