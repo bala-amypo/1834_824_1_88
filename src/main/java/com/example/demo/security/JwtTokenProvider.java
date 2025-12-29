@@ -11,11 +11,19 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long validityInMs = 3600000; // 1 hour
+    private Key key;
+    private long validityInMs;
 
-    // ✅ REQUIRED no-arg constructor
+    // ✅ REQUIRED BY SPRING
     public JwtTokenProvider() {
+        this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        this.validityInMs = 3600000; // 1 hour default
+    }
+
+    // ✅ REQUIRED BY TESTS
+    public JwtTokenProvider(String secret, long validityInMs) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+        this.validityInMs = validityInMs;
     }
 
     // ✅ USED BY AuthController
@@ -40,49 +48,37 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // ✅ USED BY JwtAuthenticationFilter
+    // ✅ REQUIRED BY JwtAuthenticationFilter
     public String getEmailFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        return claims.getSubject(); // email stored as subject
+        return getClaims(token).getSubject();
     }
 
-    // ✅ USED BY TESTS
+    // ✅ REQUIRED BY TESTS
     public Long getUserIdFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        Object id = claims.get("userId");
+        Object id = getClaims(token).get("userId");
         return id == null ? null : Long.valueOf(id.toString());
     }
 
     public String getRoleFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        Object role = claims.get("role");
+        Object role = getClaims(token).get("role");
         return role == null ? null : role.toString();
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token);
+            getClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
+    }
+
+    // 🔒 INTERNAL HELPER
+    private Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }
