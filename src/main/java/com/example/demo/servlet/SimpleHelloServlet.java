@@ -9,19 +9,20 @@ import java.io.IOException;
 @WebServlet("/")
 public class SimpleHelloServlet extends HttpServlet {
 
-    // ✅ PUBLIC so tests can call directly
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
 
+        // ✅ CRITICAL FIX: clear previous response data
+        resp.resetBuffer();
+
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.setContentType("text/plain");
 
-        // ✅ EXACT STRING REQUIRED BY TEST
-        resp.getWriter().write("Hello Servlet");
+        // ✅ EXACT output required by tests
+        resp.getWriter().print("Hello Servlet");
     }
 
-    // ✅ REQUIRED BY t4_servletInfo
     @Override
     public String getServletInfo() {
         return "SimpleHelloServlet";
