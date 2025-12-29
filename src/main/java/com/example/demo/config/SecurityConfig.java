@@ -12,6 +12,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -24,20 +29,22 @@ public class SecurityConfig {
     ) throws Exception {
 
         http
+            // ✅ ENABLE CORS (THIS WAS MISSING)
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
             .csrf(csrf -> csrf.disable())
+
             .sessionManagement(sm ->
                 sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+
             .authorizeHttpRequests(auth -> auth
 
-                // ✅ CORS preflight (THIS FIXES 403)
+                // ✅ Preflight
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                // ✅ Auth endpoints
-                .requestMatchers(HttpMethod.POST,
-                        "/auth/register",
-                        "/auth/login"
-                ).permitAll()
+                // ✅ AUTH endpoints (CRITICAL)
+                .requestMatchers("/auth/**").permitAll()
 
                 // ✅ Swagger
                 .requestMatchers(
@@ -46,15 +53,35 @@ public class SecurityConfig {
                         "/v3/api-docs/**"
                 ).permitAll()
 
-                // 🔒 Everything else secured
+                // 🔒 Others secured
                 .anyRequest().authenticated()
             )
+
             .addFilterBefore(
                 new JwtAuthenticationFilter(tokenProvider),
                 UsernamePasswordAuthenticationFilter.class
             );
 
         return http.build();
+    }
+
+    // ✅ GLOBAL CORS CONFIG
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(false);
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", config);
+
+        return source;
     }
 
     @Bean
