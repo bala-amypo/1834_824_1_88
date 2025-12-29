@@ -12,21 +12,23 @@ public class User {
 
     private String name;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
     private String password;
 
     private String role;
 
-    // ✅ REQUIRED BY TESTS (One-to-One)
-    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
+    // ✅ REQUIRED BY TESTS (One user → One unit)
+    @OneToOne
+    @JoinColumn(name = "apartment_unit_id")
     private ApartmentUnit apartmentUnit;
 
     // ---------------- CONSTRUCTORS ----------------
 
     public User() {
-        this.role = "RESIDENT"; // ✅ t25_userDefaultRole
+        // ✅ default role for tests
+        this.role = "RESIDENT";
     }
 
     // ---------------- GETTERS & SETTERS ----------------
@@ -58,15 +60,15 @@ public class User {
     public String getPassword() {
         return password;
     }
-
+ 
     public void setPassword(String password) {
         this.password = password;
     }
-
+ 
     public String getRole() {
         return role;
     }
-
+ 
     public void setRole(String role) {
         this.role = role;
     }
@@ -75,7 +77,7 @@ public class User {
         return apartmentUnit;
     }
 
-    // ✅ THIS FIXES YOUR COMPILATION ERROR
+    // ✅ THIS METHOD WAS MISSING → CAUSED ERROR
     public void setApartmentUnit(ApartmentUnit apartmentUnit) {
         this.apartmentUnit = apartmentUnit;
     }

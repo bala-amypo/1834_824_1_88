@@ -11,23 +11,31 @@ public class ApartmentUnit {
 
     private String unitNumber;
 
+    // ✅ mappedBy MUST match User.apartmentUnit
     @OneToOne(mappedBy = "apartmentUnit")
     private User owner;
 
-    // -------------------
-    // GETTERS & SETTERS
-    // -------------------
+    // ---------------- CONSTRUCTORS ----------------
+
+    public ApartmentUnit() {
+    }
+
+    public ApartmentUnit(String unitNumber) {
+        this.unitNumber = unitNumber;
+    }
+
+    // ---------------- GETTERS & SETTERS ----------------
 
     public Long getId() {
         return id;
     }
 
-    public String getUnitNumber() {
-        return unitNumber;
-    }
-
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getUnitNumber() {
+        return unitNumber;
     }
 
     public void setUnitNumber(String unitNumber) {
