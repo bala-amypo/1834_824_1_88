@@ -9,19 +9,21 @@ import java.io.IOException;
 @WebServlet("/")
 public class SimpleHelloServlet extends HttpServlet {
 
-    // ✅ MUST BE PUBLIC (tests call it directly)
+    // ✅ PUBLIC so tests can call directly
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
 
-        resp.setContentType("text/plain");
         resp.setStatus(HttpServletResponse.SC_OK);
-        resp.getWriter().write("Hello");
+        resp.setContentType("text/plain");
+
+        // ✅ EXACT STRING REQUIRED BY TEST
+        resp.getWriter().write("Hello Servlet");
     }
 
-    // ✅ Required for t4_servletInfo
+    // ✅ REQUIRED BY t4_servletInfo
     @Override
     public String getServletInfo() {
-        return "Simple Hello Servlet";
+        return "SimpleHelloServlet";
     }
 }
