@@ -1,67 +1,56 @@
 package com.example.demo.security;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.web.filter.OncePerRequestFilter;
+import io.jsonwebtoken.*;
+import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import java.util.Date;
 
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+@Component
+public class JwtTokenProvider {
 
-    private final JwtTokenProvider tokenProvider;
-    private final CustomUserDetailsService userDetailsService;
+    private final String secretKey = "secret-key-123456";
+    private final long validityInMs = 3600000; // 1 hour
 
-    // ✅ CONSTRUCTOR MATCHING SecurityConfig
-    public JwtAuthenticationFilter(
-            JwtTokenProvider tokenProvider,
-            CustomUserDetailsService userDetailsService
-    ) {
-        this.tokenProvider = tokenProvider;
-        this.userDetailsService = userDetailsService;
+    // ✅ Used by AuthController
+    public String generateToken(Long userId, String email, String role) {
+        Claims claims = Jwts.claims().setSubject(String.valueOf(userId));
+        claims.put("email", email);
+        claims.put("role", role);
+
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + validityInMs);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
     }
 
-    @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
+    // ✅ Used by JwtAuthenticationFilter
+    public String getEmailFromToken(String token) {
+        return getClaims(token).get("email", String.class);
+    }
 
-        String header = request.getHeader("Authorization");
+    public Long getUserIdFromToken(String token) {
+        String subject = getClaims(token).getSubject();
+        return subject == null ? null : Long.parseLong(subject);
+    }
 
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
-
-            if (tokenProvider.validateToken(token)) {
-                String email = tokenProvider.getEmailFromToken(token);
-
-                if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-                    UserDetails userDetails =
-                            userDetailsService.loadUserByUsername(email);
-
-                    UsernamePasswordAuthenticationToken auth =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    userDetails.getAuthorities()
-                            );
-
-                    auth.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request)
-                    );
-
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                }
-            }
+    public boolean validateToken(String token) {
+        try {
+            getClaims(token);
+            return true;
+        } catch (Exception e) {
+            return false;
         }
+    }
 
-        filterChain.doFilter(request, response);
+    private Claims getClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody();
     }
 }
